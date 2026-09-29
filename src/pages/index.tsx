@@ -92,10 +92,10 @@ function ArchitectureFlow() {
   return (
     <div className={styles.flow} aria-label="MAGPIE architecture overview">
       <div className={styles.flowColumn}>
-        <span className={styles.flowLabel}>Intelligence</span>
+        <span className={styles.flowLabel}>Intelligence and applications</span>
         <div className={styles.flowNode}>AI agent</div>
         <div className={styles.flowNode}>Cloud service</div>
-        <div className={styles.flowNode}>Application</div>
+        <div className={styles.flowNode}>Browser / operator UI</div>
       </div>
       <div className={styles.flowArrow} aria-hidden="true">⇄</div>
       <div className={clsx(styles.flowColumn, styles.flowCore)}>
@@ -109,8 +109,8 @@ function ArchitectureFlow() {
       <div className={styles.flowColumn}>
         <span className={styles.flowLabel}>Sensing and action</span>
         <div className={styles.flowNode}>Robot</div>
-        <div className={styles.flowNode}>Edge device</div>
-        <div className={styles.flowNode}>Browser</div>
+        <div className={styles.flowNode}>Edge / IoT device</div>
+        <div className={styles.flowNode}>Sensors and actuators</div>
       </div>
       <div className={styles.transportRail}>
         <span>ZeroMQ</span><span>MQTT</span><span>WebRTC</span><span>Custom</span>
