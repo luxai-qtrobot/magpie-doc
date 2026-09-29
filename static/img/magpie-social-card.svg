@@ -1,0 +1,37 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#071316"/>
+      <stop offset="0.55" stop-color="#0B1A20"/>
+      <stop offset="1" stop-color="#101A34"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(954 105) rotate(127) scale(524 497)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#58DCBC" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#58DCBC" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" rx="32" fill="url(#bg)"/>
+  <rect width="1200" height="630" rx="32" fill="url(#glow)"/>
+  <path d="M0 502C231 444 392 561 619 505C853 447 987 340 1200 394V630H0V502Z" fill="#58DCBC" fill-opacity="0.045"/>
+  <circle cx="994" cy="155" r="178" stroke="#58DCBC" stroke-opacity="0.16" stroke-width="2"/>
+  <circle cx="994" cy="155" r="116" stroke="#8396FF" stroke-opacity="0.19" stroke-width="2"/>
+  <text x="84" y="118" fill="#58DCBC" font-family="monospace" font-size="18" font-weight="700" letter-spacing="4">MESSAGE ABSTRACTION &amp; GENERAL-PURPOSE INTEGRATION ENGINE</text>
+  <text x="78" y="265" fill="#F4FAF8" font-family="Arial, sans-serif" font-size="104" font-weight="800" letter-spacing="8">MAGPIE</text>
+  <text x="84" y="346" fill="#B7CBC7" font-family="Arial, sans-serif" font-size="34">A framework for developers and AI agents</text>
+  <text x="84" y="438" fill="#6FE3C6" font-family="Arial, sans-serif" font-size="25">Intelligence anywhere. Sensing and action everywhere.</text>
+  <g transform="translate(826 103)">
+    <path d="M132 32C97 40 65 63 43 95C25 121 15 151 13 181C40 160 70 147 104 143C80 166 63 193 55 224C86 211 112 190 132 163C147 145 158 123 165 100C173 77 177 54 178 31C163 29 147 29 132 32Z" fill="#F4FAF8" fill-opacity="0.9"/>
+    <path d="M164 102C198 93 228 77 254 54C249 84 237 111 218 134C198 157 174 175 146 186C154 158 160 130 164 102Z" fill="#58DCBC" fill-opacity="0.82"/>
+    <circle cx="154" cy="67" r="6" fill="#071316"/>
+  </g>
+  <g opacity="0.75" font-family="monospace" font-size="18">
+    <rect x="84" y="515" width="122" height="44" rx="22" stroke="#FFFFFF" stroke-opacity="0.18"/>
+    <text x="112" y="543" fill="#B7CBC7">ZeroMQ</text>
+    <rect x="220" y="515" width="105" height="44" rx="22" stroke="#FFFFFF" stroke-opacity="0.18"/>
+    <text x="250" y="543" fill="#B7CBC7">MQTT</text>
+    <rect x="339" y="515" width="126" height="44" rx="22" stroke="#FFFFFF" stroke-opacity="0.18"/>
+    <text x="367" y="543" fill="#B7CBC7">WebRTC</text>
+    <rect x="479" y="515" width="96" height="44" rx="22" stroke="#FFFFFF" stroke-opacity="0.18"/>
+    <text x="510" y="543" fill="#B7CBC7">MCP</text>
+  </g>
+</svg>

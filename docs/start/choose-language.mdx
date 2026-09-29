@@ -1,0 +1,53 @@
+---
+title: Choose a language
+description: Select the MAGPIE implementation that fits your runtime, platform, and deployment.
+---
+
+# Choose a language
+
+All MAGPIE implementations share the same communication model and wire formats. Choose based on where your application runs; a single system can freely mix languages.
+
+| | Python | C++ | TypeScript / JavaScript |
+|---|---:|---:|---:|
+| ZeroMQ | ✓ | ✓ | — |
+| MQTT | ✓ | ✓ | ✓ |
+| WebRTC | ✓ | ✓ | ✓ Browser |
+| Streaming and RPC | ✓ | ✓ | ✓ |
+| Typed frames | ✓ | ✓ | ✓ |
+| Schema RPC | ✓ | ✓ | ✓ |
+| MCP tool server | ✓ | ✓ | ✓ |
+| MCP client adapter | ✓ | Via Python client | ✓ |
+| Node helpers | ✓ | ✓ | — |
+| Network discovery | ✓ | ✓ | — |
+| CLI and SSH tools | ✓ | — | — |
+
+## Python
+
+Choose Python for AI services, orchestration, rapid prototyping, CLI automation, media processing, or when you want the broadest MAGPIE feature set.
+
+```bash
+pip install luxai-magpie
+```
+
+[Python reference →](../reference/python) · [Python repository](https://github.com/luxai-qtrobot/magpie)
+
+## C++
+
+Choose C++ for native robot applications, embedded Linux, low-overhead processing, or integration into an existing CMake codebase. MAGPIE C++ targets C++14 and provides optional MQTT, WebRTC, audio, and video libraries.
+
+[C++ installation →](./installation?language=cpp) · [C++ reference →](../reference/cpp) · [C++ repository](https://github.com/luxai-qtrobot/magpie-cpp)
+
+## TypeScript and JavaScript
+
+Choose MAGPIE.js for browser interfaces, web-based robot control, Node.js services, and browser-native WebRTC media. The npm package includes TypeScript declarations and a CDN bundle.
+
+```bash
+npm install @luxai-qtrobot/magpie
+```
+
+[TypeScript reference →](../reference/typescript) · [JavaScript repository](https://github.com/luxai-qtrobot/magpie-js)
+
+:::info Mixing languages is expected
+A Python perception process can publish a frame to a C++ control service while a browser subscribes through MQTT or WebRTC. See [cross-language systems](../examples/cross-language) for the rules that keep them interoperable.
+:::
+

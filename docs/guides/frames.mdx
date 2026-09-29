@@ -1,0 +1,74 @@
+---
+title: Frames and serialization
+description: Use portable typed messages for values, images, audio, and custom data.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Frames and serialization
+
+MAGPIE can carry ordinary values, but frames provide a portable type envelope and standard metadata. Use frames when receivers need to reconstruct a concrete data type or when media metadata must travel with the payload.
+
+## Built-in frame families
+
+| Family | Types | Purpose |
+|---|---|---|
+| Primitive | `BoolFrame`, `IntFrame`, `FloatFrame`, `StringFrame` | Scalar values with frame metadata |
+| Collections | `BytesFrame`, `ListFrame`, `DictFrame` | Binary or structured payloads |
+| Images | `ImageFrameRaw`, `ImageFrameJpeg`, `ImageFrameCV` (Python) | Raw, JPEG, or OpenCV-compatible images |
+| Audio | `AudioFrameRaw`, `AudioFrameFlac` | PCM or compressed audio with sample metadata |
+
+Common metadata includes a global identifier, local identifier, name, timestamp, and concrete frame type. Media frames add dimensions, format, sample rate, or channel information.
+
+## Create and send a frame
+
+<Tabs groupId="language" queryString>
+<TabItem value="python" label="Python" default>
+
+```python
+from luxai.magpie.frames import DictFrame
+
+frame = DictFrame(value={"battery": 0.84, "charging": False})
+writer.write(frame.to_dict(), topic="robot/state")
+```
+
+</TabItem>
+<TabItem value="cpp" label="C++">
+
+```cpp
+#include <magpie/frames/primitive_frames.hpp>
+
+magpie::StringFrame frame("ready");
+writer.write(frame, "robot/status");
+```
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript">
+
+```typescript
+import {DictFrame} from '@luxai-qtrobot/magpie'
+
+const frame = new DictFrame({value: {battery: 0.84, charging: false}})
+await writer.write(frame.toDict(), 'robot/state')
+```
+
+</TabItem>
+</Tabs>
+
+## Media and WebRTC
+
+On ordinary stream transports, media frames are serialized like other values. WebRTC can carry declared image and audio topics on native RTP tracks while other topics use the data channel. Declare media topics in `WebRTCOptions` so both peers agree on routing and codecs.
+
+## Custom serializers
+
+MessagePack is the default because it is compact and available across all MAGPIE languages. Python, C++, and TypeScript expose serializer interfaces for applications that require JSON, Protobuf, FlatBuffers, or another binary representation.
+
+Only use a custom serializer when every communicating endpoint understands it. A custom serializer changes the wire contract even when the MAGPIE API remains the same.
+
+## Custom frame types
+
+Create a frame type when data has reusable semantics and metadata—not merely to wrap one application dictionary. Use stable field names, avoid runtime-specific values, and test round trips against every language that must consume the frame.
+
+See [Extending MAGPIE](../extending#add-a-frame-type) for a Python example.
+

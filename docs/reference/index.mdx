@@ -1,0 +1,48 @@
+---
+id: index
+title: API reference
+description: Entry points and public API maps for Python, C++, and TypeScript MAGPIE.
+slug: /reference
+---
+
+import Link from '@docusaurus/Link';
+
+# API reference
+
+The reference is organized by implementation because naming conventions, ownership, and asynchronous behavior follow each language. Conceptual roles remain aligned.
+
+<div className="doc-card-grid doc-card-grid--three">
+  <Link className="doc-card" to="/docs/reference/python">
+    <span>luxai-magpie</span>
+    <strong>Python API</strong>
+    <p>Transports, frames, nodes, schemas, discovery, adapters, and CLI tools.</p>
+  </Link>
+  <Link className="doc-card" to="/docs/reference/cpp">
+    <span>libmagpie</span>
+    <strong>C++ API</strong>
+    <p>Headers, link targets, optional libraries, ownership, and native types.</p>
+  </Link>
+  <Link className="doc-card" to="/docs/reference/typescript">
+    <span>@luxai-qtrobot/magpie</span>
+    <strong>TypeScript API</strong>
+    <p>Browser and Node.js exports, async methods, frames, schema, and MCP.</p>
+  </Link>
+</div>
+
+## Shared conceptual surface
+
+| Concept | Python | C++ | TypeScript |
+|---|---|---|---|
+| Streaming base | `StreamWriter`, `StreamReader` | `StreamWriter`, `StreamReader` | `StreamWriter`, `StreamReader` |
+| RPC base | `RpcRequester`, `RpcResponder` | `RpcRequester`, `RpcResponder` | `RpcRequester`, `RpcResponder` |
+| MQTT connection | `MqttConnection` | `MqttConnection` | `MqttConnection` |
+| WebRTC connection | `WebRTCConnection` | `WebRtcConnection` | `WebRtcConnection` |
+| Method schema | `JsonRpcSchema` | `JsonRpcSchema` | `JsonRpcSchema` |
+| MCP tools | `McpSchema`, `McpTransport` | `McpSchema` server | `McpSchema`, `McpTransport` |
+
+Use the language pages for exact spelling and lifecycle behavior. Use [Compatibility](/docs/reference/compatibility) before planning a mixed-language deployment.
+
+## Stability guidance
+
+MAGPIE is under active development and the three packages release independently. Pin versions in production, read repository release notes, and test cross-language contracts before rolling out a new combination.
+

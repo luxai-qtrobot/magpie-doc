@@ -1,0 +1,214 @@
+---
+title: C++ API
+description: Public headers, classes, methods, ownership, errors, and examples for MAGPIE C++.
+---
+
+# C++ API
+
+Repository: [`luxai-qtrobot/magpie-cpp`](https://github.com/luxai-qtrobot/magpie-cpp) · Standard: C++14 · Build system: CMake
+
+**Language references:** [Python](./python) · C++ · [TypeScript / JavaScript](./typescript)
+
+## Libraries and headers
+
+| Package or target | Capability | Representative headers |
+|---|---|---|
+| `libmagpie` | Core API, ZeroMQ, values, serialization, schemas, nodes, discovery | `magpie/magpie.hpp`, `transport/zmq_*`, `schema/*` |
+| `libmagpie-mqtt` | MQTT connection, streams, and RPC | `transport/mqtt_connection.hpp`, `mqtt_*` |
+| `libmagpie-webrtc` | WebRTC connection, signaling, streams, and RPC | `transport/webrtc_connection.hpp`, `webrtc_*` |
+| `libmagpie-video` | Raw and JPEG image frames | `frames/image_frame.hpp`, `image_frame_jpeg.hpp` |
+| `libmagpie-audio` | Raw and FLAC audio frames | `frames/audio_frame.hpp`, `audio_frame_flac.hpp` |
+
+Feature flags include `MAGPIE_WITH_MQTT`, `MAGPIE_WITH_WEBRTC`, `MAGPIE_WITH_VIDEO`, `MAGPIE_WITH_AUDIO`, `MAGPIE_BUILD_EXAMPLES`, and `MAGPIE_BUILD_TESTS`.
+
+## Core communication API
+
+| Class and method | Parameters and return | Behavior |
+|---|---|---|
+| `StreamWriter::write(const Frame&, topic)` | Frame plus topic; returns `void` | Direct write when `queueSize <= 0`; otherwise queues a cloned frame and drops the oldest item when full. |
+| `StreamWriter::close()` | Returns `void` | Drains the writer queue, closes transport resources, and is idempotent. |
+| `StreamReader::read(outFrame, outTopic, timeoutSec=-1)` | Writes a `std::unique_ptr<Frame>` and topic; returns `bool` | `true` when an item is read; `false` on timeout or close. Negative timeout waits indefinitely. |
+| `StreamReader::close()` | Returns `void` | Stops the reader and closes the transport. |
+| `RpcRequester::call(const Value&, timeoutSec=-1)` | Raw request; returns `Value` | Throws timeout subclasses or `std::runtime_error` after close. |
+| `RpcRequester::call(method, params={}, timeoutSec=-1)` | Schema method and `Value::Dict`; returns unwrapped `Value` | Requires a schema and throws `JsonRpcError` for protocol errors. |
+| `RpcRequester::close()` | Returns `void` | Releases requester resources; `isClosed()` reports state. |
+| `RpcResponder::respond(handler=nullptr, timeoutSec=-1)` | `Value(const Value&)` handler; returns `bool` | Handles one request. The handler is optional when a schema is attached. |
+| `RpcResponder::close()` | Returns `void` | Releases responder resources; `isClosed()` reports state. |
+
+`handleOnce()` remains as a backward-compatible alias for `respond()`. New code should use `respond()`.
+
+### Streaming example
+
+```cpp
+#include <magpie/frames/primitive_frames.hpp>
+#include <magpie/transport/zmq_stream_reader.hpp>
+#include <magpie/transport/zmq_stream_writer.hpp>
+
+magpie::ZmqStreamWriter writer("tcp://*:5555");
+magpie::ZmqStreamReader reader("tcp://127.0.0.1:5555", "robot/state");
+
+magpie::StringFrame outgoing("ready");
+writer.write(outgoing, "robot/state");
+
+std::unique_ptr<magpie::Frame> incoming;
+std::string topic;
+if (reader.read(incoming, topic, 5.0)) {
+    if (auto* text = dynamic_cast<magpie::StringFrame*>(incoming.get())) {
+        magpie::Logger::info(text->value());
+    }
+}
+
+reader.close();
+writer.close();
+```
+
+### RPC example
+
+```cpp
+#include <magpie/serializer/value.hpp>
+#include <magpie/transport/zmq_rpc_responder.hpp>
+
+magpie::ZmqRpcResponder server("tcp://*:5556");
+
+server.respond([](const magpie::Value& request) {
+    magpie::Value::Dict reply;
+    reply["ready"] = magpie::Value::fromBool(true);
+    reply["echo"] = request;
+    return magpie::Value::fromDict(reply);
+}, 1.0);
+```
+
+## Transport classes
+
+### ZeroMQ
+
+| Class | Constructor |
+|---|---|
+| `ZmqStreamWriter` | `(endpoint, queueSize=0, bind=true, delivery="reliable", serializer=nullptr)` |
+| `ZmqStreamReader` | `(endpoint, topic, queueSize=10, bind=false, delivery="reliable", serializer=nullptr)`; overload accepts `std::vector<std::string>` topics |
+| `ZmqRpcRequester` | Endpoint plus serializer, identity, acknowledgement timeout, and optional schema |
+| `ZmqRpcResponder` | Endpoint plus serializer, bind mode, and optional schema |
+
+The publisher normally binds and subscribers connect. Set `delivery="latest"` for current-state streams where stale queued values are less useful than the newest one.
+
+### MQTT
+
+| API | Purpose |
+|---|---|
+| `MqttConnection(uri, clientId={}, options={})` | Constructs a shared broker connection. URI schemes are `mqtt://`, `mqtts://`, `ws://`, and `wss://`. |
+| `connect(timeoutSec=10.0)` / `disconnect()` | Establishes or closes the connection. |
+| `isConnected()` | Reports broker state. |
+| `publish(topic, data, size, qos=-1, retain=false)` | Publishes raw bytes; higher-level writers normally use it for you. |
+| `addSubscription(topicFilter, callback, qos=-1)` | Returns a `SubscriptionHandle`; supports `+` and `#` wildcards. |
+| `removeSubscription(topicFilter, handle)` | Removes a previously registered callback. |
+| `MqttStreamWriter` / `MqttStreamReader` | Streaming over the shared connection with serializer, QoS, retain, and queue options. |
+| `MqttRpcRequester` / `MqttRpcResponder` | RPC by shared `serviceName`, with optional schema and serializer. |
+
+```cpp
+auto connection = std::make_shared<magpie::MqttConnection>(
+    "mqtts://broker.example.com:8883", "robot-01", options);
+connection->connect();
+
+magpie::MqttStreamWriter writer(connection);
+magpie::StringFrame status("online");
+writer.write(status, "robot/01/status");
+
+writer.close();
+connection->disconnect();
+```
+
+Share one `std::shared_ptr<MqttConnection>` between MQTT components. Close readers, writers, requesters, and responders before disconnecting it.
+
+### WebRTC
+
+| API | Purpose |
+|---|---|
+| `WebRtcConnection` | Owns peer state, negotiated channels/tracks, signaling, and reconnect behavior. |
+| `connect(timeoutSec)` / `disconnect()` / `isConnected()` | Controls and inspects the peer connection. |
+| `WebRtcStreamWriter` / `WebRtcStreamReader` | Sends and receives frames by topic. |
+| `WebRtcRpcRequester` / `WebRtcRpcResponder` | Calls or exposes a peer service. |
+| `HttpSignaler`, `ZmqSignaler`, `MqttSignaler` | Exchange offer, answer, and ICE messages. |
+| `WebRtcOptions` | Configures STUN/TURN, codecs, and channel behavior. |
+
+MAGPIE C++ currently carries media frames over the reliable WebRTC data channel. Set Python `use_media_channels=False` when interoperating with C++ so both peers agree on routing.
+
+## `Value`
+
+RPC and serializers use `magpie::Value`, a language-neutral variant for null, Boolean, signed integer, double, string, binary, list, and string-keyed dictionary data.
+
+| Create | Read |
+|---|---|
+| `Value::null()` | `type()` |
+| `fromBool(v)` | `asBool()` |
+| `fromInt(v)` | `asInt()` |
+| `fromDouble(v)` | `asDouble()`; also accepts an integer value |
+| `fromString(v)` | `asString()` |
+| `fromBinary(v)` | `asBinary()` |
+| `fromList(v)` | `asList()` |
+| `fromDict(v)` | `asDict()` |
+
+An accessor throws `std::runtime_error` when the stored type is incompatible. Use `Value::List` and `Value::Dict` to build nested payloads.
+
+## Frames
+
+`Frame` supplies `gid()`, `id()`, `name()`, and `timestamp()` plus matching setters. Important methods are:
+
+| Method | Purpose |
+|---|---|
+| `toDict(Dict& out) const` | Writes common and subclass fields into a wire dictionary. |
+| `loadFromDict(const Dict&)` | Populates a frame from wire data. |
+| `clone() const` | Creates an owning polymorphic copy for queues. |
+| `Frame::fromDict(const Dict&)` | Reconstructs a registered frame type; returns `nullptr` for an unknown type. |
+| `registerType(name, factory)` / `unregisterType(name)` | Controls the frame registry for custom types. |
+
+Built-in families include Boolean, integer, float, string, bytes, list, and dictionary frames plus optional raw/JPEG image and raw/FLAC audio frames. Readers return `std::unique_ptr<Frame>`; use `dynamic_cast` only after checking the expected type or protocol contract.
+
+## Schemas
+
+| API | Purpose |
+|---|---|
+| `BaseSchema::dispatch(request)` | Dispatches one decoded request and returns its response. |
+| `BaseSchema::wrap(method, params)` | Builds a requester-side envelope. |
+| `BaseSchema::unwrap(response)` | Extracts a result or throws a protocol error. |
+| `JsonRpcSchema::register_method(...)` | Registers a method, handler, description, and optional input/output schemas. |
+| `JsonRpcSchema::set_handler(name, handler)` | Attaches an implementation to a method already loaded from a contract. |
+| `JsonRpcSchema::from_json_file(path)` / `from_json_string(json)` | Builds a schema from shared JSON method definitions. |
+| `McpSchema` | Extends JSON-RPC with MCP initialization, tool listing, tool calls, and ping. |
+
+```cpp
+auto schema = std::make_shared<magpie::McpSchema>("robot-service", "1.0.0");
+schema->register_method(
+    "get_battery",
+    [](const magpie::Value::Dict&) {
+        return magpie::Value::fromDouble(0.82);
+    },
+    "Return the current battery level");
+
+magpie::ZmqRpcResponder server("tcp://*:5556", nullptr, true, schema);
+server.respond(1.0); // Schema dispatches the request.
+```
+
+## Custom serializers
+
+MessagePack is the default. Implement `Serializer` to use another format:
+
+```cpp
+class Serializer {
+public:
+    virtual std::vector<std::uint8_t> serialize(const magpie::Value& value) = 0;
+    virtual magpie::Value deserialize(const std::uint8_t* data, std::size_t size) = 0;
+};
+```
+
+Pass a shared serializer to matching transport endpoints. All peers on that path must use the same encoding and value conventions.
+
+## Ownership, errors, and shutdown
+
+- Stream readers transfer frame ownership through `std::unique_ptr<Frame>`.
+- Connections, schemas, and serializers shared by several components use `std::shared_ptr`.
+- `AckTimeoutError`, `ReplyTimeoutError`, and `TimeoutError` distinguish RPC failure stages where supported.
+- `JsonRpcError` carries schema-level error information.
+- A timeout does not prove the remote operation did not execute; make retried commands idempotent.
+- Close child components before disconnecting their shared MQTT or WebRTC connection.
+
+The [public headers](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/include/magpie) are the canonical signature reference. See the [C++ examples](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples) for complete buildable programs.

@@ -1,0 +1,140 @@
+---
+title: Five-minute quickstart
+description: Install MAGPIE and send your first streaming message.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Five-minute quickstart
+
+This example sends one message per second and receives it on a topic. Python and C++ use a direct ZeroMQ connection; TypeScript uses MQTT because browsers and Node.js do not expose a ZeroMQ transport.
+
+<Tabs groupId="language" queryString>
+<TabItem value="python" label="Python" default>
+
+Install the core package:
+
+```bash
+pip install luxai-magpie
+```
+
+Create `writer.py`:
+
+```python
+import time
+from luxai.magpie.transport import ZmqStreamWriter
+
+writer = ZmqStreamWriter("tcp://*:5555")
+
+try:
+    count = 0
+    while True:
+        writer.write({"count": count, "message": "hello"}, topic="demo/hello")
+        count += 1
+        time.sleep(1)
+finally:
+    writer.close()
+```
+
+Create `reader.py`:
+
+```python
+from luxai.magpie.transport import ZmqStreamReader
+
+reader = ZmqStreamReader("tcp://127.0.0.1:5555", topic=["demo/hello"], bind=False)
+
+try:
+    while True:
+        data, topic = reader.read()
+        print(topic, data)
+finally:
+    reader.close()
+```
+
+Run `python writer.py`, then `python reader.py` in another terminal.
+
+</TabItem>
+<TabItem value="cpp" label="C++">
+
+After [installing MAGPIE C++](./installation?language=cpp), create `writer.cpp`:
+
+```cpp
+#include <magpie/frames/primitive_frames.hpp>
+#include <magpie/transport/zmq_stream_writer.hpp>
+#include <chrono>
+#include <thread>
+
+int main() {
+    magpie::ZmqStreamWriter writer("tcp://*:5555");
+    int count = 0;
+    while (true) {
+        writer.write(magpie::StringFrame("hello " + std::to_string(count++)), "demo/hello");
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+}
+```
+
+The repository contains a matching reader and build target:
+
+```bash
+git clone https://github.com/luxai-qtrobot/magpie-cpp.git
+cd magpie-cpp
+cmake -S . -B build -DMAGPIE_BUILD_EXAMPLES=ON
+cmake --build build --parallel
+./build/examples/zmq_stream_writer
+# In a second terminal:
+./build/examples/zmq_stream_reader
+```
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript / JavaScript">
+
+Install MAGPIE.js:
+
+```bash
+npm install @luxai-qtrobot/magpie
+```
+
+Connect to an MQTT broker and publish a message:
+
+```typescript
+import {MqttConnection, MqttStreamWriter} from '@luxai-qtrobot/magpie'
+
+const connection = new MqttConnection('mqtt://broker.hivemq.com:1883')
+await connection.connect()
+
+const writer = new MqttStreamWriter(connection)
+await writer.write({count: 1, message: 'hello'}, 'demo/hello')
+
+writer.close()
+await connection.disconnect()
+```
+
+Subscribe from another Node.js process:
+
+```typescript
+import {MqttConnection, MqttStreamReader} from '@luxai-qtrobot/magpie'
+
+const connection = new MqttConnection('mqtt://broker.hivemq.com:1883')
+await connection.connect()
+
+const reader = new MqttStreamReader(connection, {topic: 'demo/hello'})
+const [data, topic] = await reader.read(10)
+console.log(topic, data)
+
+reader.close()
+await connection.disconnect()
+```
+
+Use `wss://` instead of `mqtt://` when running in a browser.
+
+</TabItem>
+</Tabs>
+
+## What just happened?
+
+The writer knew only an endpoint and a topic. The reader subscribed independently, and MAGPIE handled serialization, transport I/O, queues, and shutdown behavior. Changing transport should change construction and connection setup—not the application’s message-handling logic.
+
+Next, learn the [four core APIs](../concepts/core-api), add [request/response RPC](../guides/rpc), or compare [transport choices](../transports/overview).
+

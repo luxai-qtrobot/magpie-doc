@@ -1,0 +1,75 @@
+---
+title: Troubleshooting
+description: Diagnose installation, connection, topic, serialization, RPC, WebRTC, and interoperability problems.
+---
+
+# Troubleshooting
+
+Diagnose the system one layer at a time: package → connection → transport → serialization → application contract. The Python [command-line tools](../tools/cli) are useful independent probes even when the failing application is written in another language.
+
+## Nothing is received
+
+- Confirm writer and reader use the same endpoint, broker, topic, and case.
+- For ZeroMQ, confirm exactly one intended side binds and the other connects.
+- Allow a subscriber time to connect before a one-shot ZeroMQ publish.
+- For MQTT, confirm both clients are connected and broker ACLs permit the topic.
+- Check whether an MQTT wildcard is used only on subscribe, never publish.
+- Increase the read timeout while diagnosing network setup.
+- Test with `magpie-write`, `magpie-read`, or their MQTT equivalents.
+
+## Messages arrive but cannot be decoded
+
+- Verify every endpoint uses the same serializer.
+- Send frames as their wire dictionary (`to_dict()` in Python and `toDict()` in TypeScript) when using general MessagePack streams.
+- Confirm the receiving implementation knows the frame type named in the envelope.
+- Compare snake_case wire field names rather than runtime property naming.
+- Test a primitive value before debugging image or audio payloads.
+
+## RPC times out
+
+- First confirm the responder is running and listening on the same service name.
+- Distinguish an acknowledgement timeout from a reply timeout where the API exposes both.
+- Ensure the responder continues polling or remains alive after registering an event handler.
+- Check that the handler returns a serializable value.
+- Do not retry non-idempotent operations automatically without an operation ID.
+
+## MQTT connection fails
+
+- Match the URI scheme to the broker listener (`mqtt`, `mqtts`, `ws`, or `wss`).
+- Browsers require a WebSocket listener and an origin/CORS-compatible deployment.
+- Verify DNS, port reachability, certificate trust, username/password, and topic ACLs separately.
+- Give each simultaneous connection a unique client ID.
+- Use the broker logs; client disconnect codes alone may hide an ACL or TLS failure.
+
+## WebRTC peers do not connect
+
+- Both peers need the same session ID and signaling URL.
+- A ZeroMQ signaling pair needs one binding peer.
+- An HTTP relay may reject a third or stale participant with `409 Conflict`; let the lease expire or clear the development relay.
+- Verify signaling CORS when the browser page and relay use different origins.
+- Configure STUN/TURN for peers outside the same network.
+- Inspect browser WebRTC diagnostics and TURN allocation logs.
+- When C++ communicates with Python, route media through the data channel on both peers.
+
+## The newest stream values replace older values
+
+This can be intentional. Bounded queues favor fresh state by dropping the oldest queued item when full. Increase the queue only when buffering is safe, process data faster, or use an application/transport designed for durable event storage.
+
+## Increase logging
+
+Python and C++ expose `Logger` configuration, and many CLI tools accept `-v`. Log endpoint and service identity but redact passwords, tokens, private keys, and sensitive payloads.
+
+## Before opening an issue
+
+Include:
+
+- Language package and version.
+- Operating system and architecture.
+- Transport and endpoint scheme, with credentials removed.
+- Minimal writer/requester and reader/responder code.
+- Expected and observed behavior.
+- Complete error text and relevant debug logs.
+- Whether the corresponding repository example works unchanged.
+
+Open issues in the repository for the affected implementation: [Python](https://github.com/luxai-qtrobot/magpie/issues), [C++](https://github.com/luxai-qtrobot/magpie-cpp/issues), or [TypeScript](https://github.com/luxai-qtrobot/magpie-js/issues).
+

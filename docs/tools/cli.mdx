@@ -1,0 +1,92 @@
+---
+title: Command-line tools
+description: Inspect streams, publish values, call services, test media, and discover nodes without writing an application.
+---
+
+# Command-line tools
+
+The Python package includes command-line clients built on the same public APIs as your application. Use them to validate networking, inspect payloads, reproduce failures, and test a service before building a user interface.
+
+## ZeroMQ
+
+```bash
+pip install luxai-magpie
+```
+
+```bash
+# Publish once, publish repeatedly, or load JSON from a file
+magpie-write tcp://127.0.0.1:5555 /robot/state '{"ready":true}'
+magpie-write tcp://127.0.0.1:5555 /robot/state '{"count":1}' --rate 10 --loop
+magpie-write tcp://*:5555 /robot/state @payload.json --bind
+
+# Read one or more topic prefixes
+magpie-read tcp://127.0.0.1:5555 /robot/state --pretty
+magpie-read tcp://127.0.0.1:5555 /robot/state /robot/events
+
+# Call an RPC service
+magpie-request tcp://127.0.0.1:5556 '{"action":"status"}' --pretty
+```
+
+## MQTT
+
+```bash
+pip install "luxai-magpie[mqtt]"
+```
+
+```bash
+magpie-write-mqtt mqtts://broker.example.com:8883 robot/state '{"ready":true}' --retain
+magpie-read-mqtt mqtts://broker.example.com:8883 'robot/+/status' --pretty --hz
+magpie-request-mqtt mqtts://broker.example.com:8883 robot-01/actions @request.json --timeout 10
+```
+
+Pass authentication, TLS, and QoS configuration as inline JSON or a file:
+
+```bash
+magpie-read-mqtt mqtts://broker.example.com:8883 'robot/#' \
+  --mqtt-params @/etc/magpie/mqtt.json
+```
+
+## WebRTC
+
+Both peers use the same session ID and signaling service:
+
+```bash
+pip install "luxai-magpie[webrtc,mqtt]"
+
+magpie-write-webrtc robot-01 robot/state '{"ready":true}' \
+  --signaling mqtts://broker.example.com:8883
+
+magpie-read-webrtc robot-01 robot/state \
+  --signaling mqtts://broker.example.com:8883 --pretty
+
+magpie-request-webrtc robot-01 robot/actions '{"action":"status"}' \
+  --signaling https://signal.example.com/webrtc --pretty
+```
+
+Use a `tcp://` signaling endpoint for ZeroMQ and add `--bind` to one peer. For an authenticated HTTP relay, provide fixed headers with `--http-headers @headers.json`.
+
+## Audio and video
+
+```bash
+pip install "luxai-magpie[audio,video,webrtc,mqtt]"
+
+magpie-video-capture tcp://*:5555 camera/color --encoder jpeg
+magpie-video-viewer tcp://127.0.0.1:5555 camera/color
+magpie-audio-capture tcp://*:5556 microphone --samplerate 16000
+magpie-audio-player tcp://127.0.0.1:5556 microphone
+
+magpie-video-capture-webrtc robot-01 camera/color --signaling mqtt://broker.example.com:1883
+magpie-video-viewer-webrtc robot-01 camera/color --signaling mqtt://broker.example.com:1883
+```
+
+## Discovery
+
+```bash
+pip install "luxai-magpie[discovery]"
+
+magpie-discovery
+magpie-discovery --advertise --port 5555 --id camera-service
+```
+
+Run any command with `--help` for its complete arguments. Avoid placing passwords directly on a command line because they may appear in shell history or process listings.
+

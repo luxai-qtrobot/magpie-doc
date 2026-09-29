@@ -1,0 +1,145 @@
+---
+title: Installation
+description: Install MAGPIE for Python, C++, TypeScript, or JavaScript with only the features you need.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Installation
+
+MAGPIE keeps optional features separate. Begin with the smallest installation that supports your transport, then add media, discovery, or MCP when your application needs them.
+
+<Tabs groupId="language" queryString>
+<TabItem value="python" label="Python" default>
+
+The core package includes ZeroMQ streaming and RPC:
+
+```bash
+python -m pip install luxai-magpie
+```
+
+Install optional feature groups individually or combine their names:
+
+| Command | Adds |
+|---|---|
+| `pip install "luxai-magpie[mqtt]"` | MQTT transport and MQTT CLI tools |
+| `pip install "luxai-magpie[webrtc]"` | WebRTC with ZeroMQ and HTTP signaling |
+| `pip install "luxai-magpie[mqtt,webrtc]"` | WebRTC with MQTT signaling as well |
+| `pip install "luxai-magpie[mcp]"` | FastMCP client adapter |
+| `pip install "luxai-magpie[video]"` | Image frames, capture, and viewer tools |
+| `pip install "luxai-magpie[audio]"` | Audio frames, capture, and player tools |
+| `pip install "luxai-magpie[discovery]"` | Zeroconf discovery tools |
+| `pip install "luxai-magpie[full]"` | All optional features except MCP |
+
+Verify the installation:
+
+```bash
+python -c "import luxai.magpie as magpie; print(magpie.__version__)"
+```
+
+</TabItem>
+<TabItem value="cpp" label="C++">
+
+Pre-built Debian packages are available from the [MAGPIE C++ releases](https://github.com/luxai-qtrobot/magpie-cpp/releases) page for Ubuntu 22.04/24.04 amd64 and Debian 13 arm64.
+
+| Package | Adds |
+|---|---|
+| `libmagpie` | Core, ZeroMQ, schema, MCP server, nodes, and discovery |
+| `libmagpie-mqtt` | MQTT transport |
+| `libmagpie-webrtc` | WebRTC plus HTTP and ZeroMQ signaling |
+| `libmagpie-video` | Raw and JPEG image frames |
+| `libmagpie-audio` | Raw and FLAC audio frames |
+
+Download the packages you need, then install them together so dependencies can be resolved:
+
+```bash
+sudo apt install ./libmagpie*.deb
+```
+
+To build from source:
+
+```bash
+git clone https://github.com/luxai-qtrobot/magpie-cpp.git
+cd magpie-cpp
+sudo apt install libzmq3-dev libmsgpack-dev libfmt-dev
+cmake -S . -B build -DMAGPIE_BUILD_EXAMPLES=ON
+cmake --build build --parallel
+sudo cmake --install build
+```
+
+Enable optional modules with `MAGPIE_WITH_MQTT`, `MAGPIE_WITH_WEBRTC`, `MAGPIE_WITH_VIDEO`, and `MAGPIE_WITH_AUDIO`.
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript / JavaScript">
+
+For a project using npm:
+
+```bash
+npm install @luxai-qtrobot/magpie
+```
+
+The package includes ESM, CommonJS, and TypeScript declarations. On the agent/client side, MCP also needs the official SDK:
+
+```bash
+npm install @modelcontextprotocol/sdk
+```
+
+For a browser page without a bundler:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@luxai-qtrobot/magpie/dist/magpie.umd.js"></script>
+<script>
+  const { MqttConnection, MqttStreamWriter } = Magpie
+</script>
+```
+
+Browsers must use MQTT over WebSocket (`ws://` or `wss://`); they cannot open raw MQTT TCP connections.
+
+</TabItem>
+</Tabs>
+
+## Install from source during development
+
+Use editable/source installations when contributing or testing unreleased changes:
+
+<Tabs groupId="language" queryString>
+<TabItem value="python" label="Python" default>
+
+```bash
+git clone https://github.com/luxai-qtrobot/magpie.git
+cd magpie
+python -m venv .venv
+# Linux/macOS: source .venv/bin/activate
+# Windows: .venv\Scripts\activate
+pip install -e ".[dev,mcp]"
+pytest
+```
+
+</TabItem>
+<TabItem value="cpp" label="C++">
+
+```bash
+git clone https://github.com/luxai-qtrobot/magpie-cpp.git
+cd magpie-cpp
+cmake -S . -B build -DMAGPIE_BUILD_TESTS=ON -DMAGPIE_BUILD_EXAMPLES=ON
+cmake --build build --parallel
+ctest --test-dir build --output-on-failure
+```
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript / JavaScript">
+
+```bash
+git clone https://github.com/luxai-qtrobot/magpie-js.git
+cd magpie-js
+npm install
+npm run build
+npm test
+```
+
+</TabItem>
+</Tabs>
+
+Continue with the [quickstart](./quickstart).
+

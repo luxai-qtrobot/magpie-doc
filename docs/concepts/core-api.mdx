@@ -1,0 +1,59 @@
+---
+title: The four core APIs
+description: Learn the stable streaming and RPC primitives shared by MAGPIE transports and languages.
+---
+
+# The four core APIs
+
+MAGPIE deliberately exposes a small communication vocabulary. Learn these four roles and you can move between transports and language implementations without relearning the architecture.
+
+| Role | Direction | Best for | Core operation |
+|---|---|---|---|
+| `StreamWriter` | One-to-many | State, events, telemetry, media | `write(value, topic)` |
+| `StreamReader` | Many-to-one | Subscriptions and pipelines | `read(timeout)` |
+| `RpcRequester` | One request → one response | Commands and queries | `call(request, timeout)` |
+| `RpcResponder` | Requests → handler → replies | Services and tools | `respond(handler, timeout)` |
+
+In Python and C++, `respond()` handles one request at a time. In TypeScript, `respond(handler)` registers the handler and returns immediately so incoming requests can be dispatched by the event loop.
+
+## Streaming
+
+Streaming decouples producers from consumers. A writer does not know how many readers exist, and a reader filters by topic. Delivery semantics depend on the chosen transport, so streams are best for data that is naturally repeated or can tolerate transport-specific delivery behavior.
+
+```text
+camera ── write(frame, "camera/color") ──▶ one or more readers
+sensor ── write(value, "robot/temperature") ──▶ dashboards / logs / agents
+```
+
+[Streaming guide →](../guides/streaming)
+
+## Request and response
+
+RPC couples one request to one correlated result. Requesters receive acknowledgement and reply timeout signals where supported. Responders can use a general handler or attach a schema for method dispatch.
+
+```text
+requester ── {action: "move"} ──▶ responder
+requester ◀── {status: "ok"} ─── responder
+```
+
+[RPC guide →](../guides/rpc)
+
+## The API stays stable; setup changes
+
+Transport-specific setup remains visible because connection topology matters:
+
+- ZeroMQ components receive endpoint strings and decide which side binds.
+- MQTT components share an explicitly connected `MqttConnection`.
+- WebRTC components share a peer connection created with a signaling strategy.
+
+After setup, the application continues to read, write, call, and respond in the same way.
+
+## Raw values, frames, and schemas
+
+Use the simplest representation that preserves your contract:
+
+1. **Raw values** for internal messages and rapid prototypes.
+2. **Typed frames** for standard metadata, media, and cross-language data types.
+3. **Schema-based RPC** for named methods, validation, discoverability, and AI tool exposure.
+
+These layers compose. They are not separate modes of the framework.

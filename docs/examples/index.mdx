@@ -1,0 +1,78 @@
+---
+id: index
+title: Examples and recipes
+description: Find a runnable MAGPIE example by communication pattern, transport, language, or task.
+slug: /examples
+---
+
+import Link from '@docusaurus/Link';
+
+# Examples and recipes
+
+Start with the smallest example matching your task. Each repository contains runnable programs; the guides below explain the design choices around them.
+
+## By task
+
+<div className="doc-card-grid doc-card-grid--three">
+  <Link className="doc-card" to="/docs/guides/streaming">
+    <span>PUBLISH / SUBSCRIBE</span>
+    <strong>Stream data</strong>
+    <p>Telemetry, events, state, sensor values, images, and audio.</p>
+  </Link>
+  <Link className="doc-card" to="/docs/guides/rpc">
+    <span>REQUEST / RESPONSE</span>
+    <strong>Call a service</strong>
+    <p>Commands and queries with correlated replies and timeouts.</p>
+  </Link>
+  <Link className="doc-card" to="/docs/guides/schema-rpc">
+    <span>JSON-RPC</span>
+    <strong>Define an API</strong>
+    <p>Named methods, JSON Schema contracts, validation, and errors.</p>
+  </Link>
+  <Link className="doc-card" to="/docs/ai/mcp">
+    <span>AI AGENTS</span>
+    <strong>Expose MCP tools</strong>
+    <p>Let agents discover and call robot or edge capabilities.</p>
+  </Link>
+  <Link className="doc-card" to="/docs/transports/webrtc">
+    <span>PEER TO PEER</span>
+    <strong>Use WebRTC</strong>
+    <p>Low-latency data, RPC, browser video, and audio.</p>
+  </Link>
+  <Link className="doc-card" to="/docs/tools/ssh-mqtt">
+    <span>REMOTE ACCESS</span>
+    <strong>Tunnel SSH</strong>
+    <p>Reach systems behind NAT through an MQTT broker.</p>
+  </Link>
+</div>
+
+## Runnable repositories
+
+| Capability | Python | C++ | TypeScript / browser |
+|---|---|---|---|
+| ZeroMQ stream and RPC | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/zmq) | [Examples](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/zmq) | — |
+| MQTT stream and RPC | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/mqtt) | [Examples](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/mqtt) | [Examples](https://github.com/luxai-qtrobot/magpie-js/tree/main/examples/mqtt) |
+| WebRTC | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/webrtc) | [Examples](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/webrtc) | [Browser demos](https://github.com/luxai-qtrobot/magpie-js/tree/main/examples/browser/webrtc) |
+| Schema RPC | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/schema) | [Examples](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/schema) | [Examples](https://github.com/luxai-qtrobot/magpie-js/tree/main/examples/schema) |
+| MCP | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/mcp) | [Server example](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/mcp) | [Examples](https://github.com/luxai-qtrobot/magpie-js/tree/main/examples/mcp) |
+| Nodes | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/nodes) | [Examples](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/nodes) | — |
+| Discovery | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/discovery) | [Example](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/discovery) | — |
+
+## Suggested learning sequence
+
+1. Run one writer and one reader on localhost.
+2. Replace streaming with RPC for a command that returns a result.
+3. Move both components to MQTT and confirm the application logic remains recognizable.
+4. Run different language implementations against the same topic or service.
+5. Add a schema and expose one safe method as an MCP tool.
+6. Use the CLI tools to inspect the finished deployment independently of your application.
+
+## Patterns worth copying
+
+- **One connection, many components:** share MQTT and WebRTC connections within a process.
+- **Stable names:** centralize topic, service, and session identifiers.
+- **Explicit shutdown:** close components before shared connections.
+- **Timeouts everywhere:** do not allow network calls to wait forever.
+- **Transport configuration outside behavior:** load endpoints and credentials from deployment configuration.
+- **Test the wire:** include at least one cross-language integration test for every shared contract.
+

@@ -1,0 +1,74 @@
+---
+title: ZeroMQ
+description: Direct streaming and RPC over TCP or in-process ZeroMQ endpoints.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# ZeroMQ
+
+ZeroMQ is MAGPIE’s core direct transport for Python and C++. It needs no broker and works well on localhost, inside one process, or across a controlled network.
+
+## Endpoints
+
+| Endpoint | Use |
+|---|---|
+| `tcp://*:5555` | Bind on all interfaces |
+| `tcp://127.0.0.1:5555` | Connect on the same host |
+| `tcp://192.168.1.20:5555` | Connect over a LAN |
+| `inproc://pipeline` | Communicate within one process |
+
+One side binds and the other connects. In Python readers, set `bind=False` when connecting. Do not expose an unauthenticated bind endpoint to an untrusted network.
+
+## Streaming
+
+<Tabs groupId="language" queryString>
+<TabItem value="python" label="Python" default>
+
+```python
+from luxai.magpie.transport import ZmqStreamWriter, ZmqStreamReader
+
+writer = ZmqStreamWriter("tcp://*:5555")
+reader = ZmqStreamReader("tcp://127.0.0.1:5555", topic=["robot/"], bind=False)
+
+writer.write({"state": "ready"}, topic="robot/status")
+value, topic = reader.read(timeout=2.0)
+```
+
+</TabItem>
+<TabItem value="cpp" label="C++">
+
+```cpp
+#include <magpie/frames/primitive_frames.hpp>
+#include <magpie/transport/zmq_stream_reader.hpp>
+#include <magpie/transport/zmq_stream_writer.hpp>
+
+magpie::ZmqStreamWriter writer("tcp://*:5555");
+magpie::ZmqStreamReader reader("tcp://127.0.0.1:5555", "robot/");
+
+writer.write(magpie::StringFrame("ready"), "robot/status");
+```
+
+</TabItem>
+</Tabs>
+
+## RPC
+
+Use `ZMQRpcRequester`/`ZMQRpcResponder` in Python and `ZmqRpcRequester`/`ZmqRpcResponder` in C++. The responder normally binds; requesters connect.
+
+```python
+server = ZMQRpcResponder("tcp://*:5556")
+client = ZMQRpcRequester("tcp://127.0.0.1:5556")
+```
+
+## Deployment notes
+
+- Prefer fixed ports and explicit firewall rules.
+- Use DNS names or discovery instead of embedding changing IP addresses.
+- A bind address of `*` listens on every network interface; use it intentionally.
+- ZeroMQ is not a replacement for authentication or encryption. Place it on a trusted network or add an appropriate security layer.
+- For cloud-to-robot communication behind NAT, MQTT or WebRTC signaling is usually easier operationally.
+
+Browse the runnable [Python ZeroMQ examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/zmq) or [C++ ZeroMQ examples](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/zmq).
+

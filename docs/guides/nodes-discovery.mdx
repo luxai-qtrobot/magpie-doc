@@ -1,0 +1,74 @@
+---
+title: Nodes and discovery
+description: Add managed lifecycle to MAGPIE components and discover services on a local network.
+---
+
+# Nodes and discovery
+
+Python and C++ provide node helpers for long-running components plus Zeroconf discovery for finding services on a local network. They are optional layers over the core transport APIs.
+
+## Node helpers
+
+| Node | Wraps | Typical use |
+|---|---|---|
+| `BaseNode` | A managed processing loop | Periodic or custom background work |
+| `SourceNode` | A `StreamWriter` | Sensors and publishers |
+| `SinkNode` | A `StreamReader` | Consumers and recorders |
+| `ProcessNode` | Reader + writer | Filters and transformation pipelines |
+| `ServerNode` | An `RpcResponder` | Concurrent command/query services |
+
+Nodes provide a lifecycle around setup, processing, pause/resume, cleanup, and termination. Use the raw transport classes when you already have an application runtime; use nodes when MAGPIE should own the worker loop.
+
+```python
+import time
+from luxai.magpie.nodes import BaseNode
+
+class HeartbeatNode(BaseNode):
+    def setup(self, interval):
+        self.interval = interval
+
+    def process(self):
+        print("alive")
+        time.sleep(self.interval)
+
+node = HeartbeatNode(name="heartbeat", setup_kwargs={"interval": 1})
+try:
+    time.sleep(10)
+finally:
+    node.terminate()
+```
+
+## Zeroconf discovery
+
+Discovery advertises a node ID, port, and small JSON-compatible payload through mDNS/Zeroconf. It is suited to local networks where hard-coded IP addresses are undesirable.
+
+```python
+from luxai.magpie.discovery import ZconfDiscovery
+
+# Service process
+with ZconfDiscovery() as discovery:
+    discovery.advertise_node(
+        "camera-service",
+        port=5555,
+        payload={"role": "camera", "transport": "zmq"},
+    )
+    input("Advertising; press Enter to stop\n")
+```
+
+```python
+from luxai.magpie.discovery import ZconfDiscovery
+
+# Client process
+with ZconfDiscovery() as discovery:
+    info = discovery.resolve_node("camera-service", timeout=5)
+    if info:
+        host = discovery.pick_best_ip(info)
+        print(f"tcp://{host}:{info.port}")
+```
+
+## Boundaries
+
+Zeroconf is local discovery, not identity or authorization. Do not trust an advertised payload simply because it appeared on the network. Authenticate the transport or application protocol before performing privileged operations.
+
+For brokered deployments, a retained MQTT presence topic may be a better registry. For internet deployments, use your platform’s service discovery or configuration layer.
+

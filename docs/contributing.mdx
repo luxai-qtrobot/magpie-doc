@@ -1,0 +1,80 @@
+---
+title: Contributing
+description: Develop, test, document, and propose changes across the MAGPIE repositories.
+---
+
+# Contributing
+
+MAGPIE is maintained across three implementation repositories and this documentation site. Contributions should preserve the shared concepts and wire contracts even when code changes only one language.
+
+## Repositories
+
+| Repository | Scope |
+|---|---|
+| [magpie](https://github.com/luxai-qtrobot/magpie) | Python implementation and CLI toolkit |
+| [magpie-cpp](https://github.com/luxai-qtrobot/magpie-cpp) | C++ implementation and native packages |
+| [magpie-js](https://github.com/luxai-qtrobot/magpie-js) | TypeScript/JavaScript, Node.js, and browser implementation |
+| [magpie-doc](https://github.com/luxai-qtrobot/magpie-doc) | Unified documentation website |
+
+## Before changing a wire contract
+
+Open a design discussion before changing frame fields, RPC envelopes, signaling messages, schema behavior, or serialization. A local improvement can become a breaking change for two other languages.
+
+Document:
+
+- The current and proposed wire representation.
+- Backward-compatibility behavior.
+- How each language will encode and decode it.
+- Test fixtures or packet examples.
+- The rollout order when implementations release independently.
+
+## Development commands
+
+```bash title="Python"
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev,mcp]"
+pytest
+```
+
+```bash title="C++"
+cmake -S . -B build -DMAGPIE_BUILD_TESTS=ON -DMAGPIE_BUILD_EXAMPLES=ON
+cmake --build build --parallel
+ctest --test-dir build --output-on-failure
+```
+
+```bash title="TypeScript"
+npm install
+npm run typecheck
+npm test
+npm run build
+```
+
+## Documentation website
+
+The Docusaurus site has its own [`magpie-doc`](https://github.com/luxai-qtrobot/magpie-doc) repository:
+
+```bash
+git clone https://github.com/luxai-qtrobot/magpie-doc.git
+cd magpie-doc
+npm install
+npm start
+```
+
+Before submitting documentation changes:
+
+```bash
+npm run typecheck
+npm run build
+```
+
+Keep guides concept-first, use synchronized language tabs for equivalent APIs, and link to runnable repository examples. Prefer one canonical explanation over copying the same long section into several pages.
+
+## Pull requests
+
+- Keep changes focused and explain the user-visible reason.
+- Add tests for behavioral changes and examples for new public features.
+- Update all affected language documentation and compatibility tables.
+- Do not include secrets, broker credentials, or private infrastructure addresses.
+- Confirm the website builds with no broken links.
+

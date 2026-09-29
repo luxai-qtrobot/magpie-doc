@@ -1,0 +1,159 @@
+---
+title: MQTT
+description: Brokered streaming and RPC with TLS, authentication, WebSockets, LWT, QoS, and reconnect support.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# MQTT
+
+MQTT is the most broadly interoperable MAGPIE transport: Python, C++, Node.js, and browsers can all participate. Because clients connect outbound to a broker, MQTT also works naturally for robots and services behind NAT.
+
+## URI schemes
+
+| URI | Connection |
+|---|---|
+| `mqtt://host:1883` | Plain MQTT over TCP |
+| `mqtts://host:8883` | MQTT over TLS |
+| `ws://host:port/mqtt` | MQTT over WebSocket |
+| `wss://host:port/mqtt` | MQTT over secure WebSocket |
+
+Browsers require `ws://` or `wss://`. Use TLS (`mqtts://` or `wss://`) outside a trusted development network.
+
+## Share one connection
+
+Create one connection per process or logical broker identity, connect it, and pass it to multiple stream and RPC components.
+
+<Tabs groupId="language" queryString>
+<TabItem value="python" label="Python" default>
+
+```python
+from luxai.magpie.transport import (
+    MqttConnection,
+    MqttStreamReader,
+    MqttStreamWriter,
+    MqttRpcRequester,
+)
+
+connection = MqttConnection("mqtts://broker.example.com:8883")
+connection.connect()
+
+writer = MqttStreamWriter(connection)
+reader = MqttStreamReader(connection, topic="robot/+/status")
+client = MqttRpcRequester(connection, service_name="robot-01/actions")
+```
+
+</TabItem>
+<TabItem value="cpp" label="C++">
+
+```cpp
+auto connection = std::make_shared<magpie::MqttConnection>(
+    "mqtts://broker.example.com:8883");
+connection->connect();
+
+magpie::MqttStreamWriter writer(connection);
+magpie::MqttStreamReader reader(connection, "robot/+/status");
+magpie::MqttRpcRequester client(connection, "robot-01/actions");
+```
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript">
+
+```typescript
+import {
+  MqttConnection,
+  MqttStreamReader,
+  MqttStreamWriter,
+  MqttRpcRequester,
+} from '@luxai-qtrobot/magpie'
+
+const connection = new MqttConnection('wss://broker.example.com/mqtt')
+await connection.connect()
+
+const writer = new MqttStreamWriter(connection)
+const reader = new MqttStreamReader(connection, {topic: 'robot/+/status'})
+const client = new MqttRpcRequester(connection, 'robot-01/actions')
+```
+
+</TabItem>
+</Tabs>
+
+## Authentication, TLS, LWT, and QoS
+
+<Tabs groupId="language" queryString>
+<TabItem value="python" label="Python" default>
+
+```python
+from luxai.magpie.transport import (
+    MqttAuthOptions, MqttConnection, MqttDefaultsOptions,
+    MqttOptions, MqttTlsOptions, MqttWillOptions,
+)
+
+options = MqttOptions(
+    auth=MqttAuthOptions(
+        mode="username_password", username="robot-01", password="secret"
+    ),
+    tls=MqttTlsOptions(ca_file="/etc/ssl/certs/broker-ca.pem", verify_peer=True),
+    will=MqttWillOptions(
+        enabled=True, topic="robot/robot-01/status", payload="offline", qos=1, retain=True
+    ),
+    defaults=MqttDefaultsOptions(publish_qos=1, subscribe_qos=1),
+)
+
+connection = MqttConnection(
+    "mqtts://broker.example.com:8883", client_id="robot-01", options=options
+)
+```
+
+</TabItem>
+<TabItem value="cpp" label="C++">
+
+```cpp
+magpie::MqttOptions options;
+options.auth.mode = "username_password";
+options.auth.username = "robot-01";
+options.auth.password = "secret";
+options.tls.caFile = "/etc/ssl/certs/broker-ca.pem";
+options.tls.verifyPeer = true;
+options.will.enabled = true;
+options.will.topic = "robot/robot-01/status";
+options.will.payload = "offline";
+options.will.qos = 1;
+options.will.retain = true;
+
+auto connection = std::make_shared<magpie::MqttConnection>(
+    "mqtts://broker.example.com:8883", "robot-01", options);
+```
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript">
+
+```typescript
+const connection = new MqttConnection('wss://broker.example.com/mqtt', {
+  clientId: 'robot-01',
+  auth: {mode: 'username_password', username: 'robot-01', password: 'secret'},
+  will: {
+    enabled: true,
+    topic: 'robot/robot-01/status',
+    payload: 'offline',
+    qos: 1,
+    retain: true,
+  },
+  defaults: {publishQos: 1, subscribeQos: 1},
+  reconnect: {minDelaySec: 1, maxDelaySec: 30},
+})
+```
+
+</TabItem>
+</Tabs>
+
+## Production guidance
+
+- Give every process a unique client ID.
+- Use broker ACLs to restrict topics by robot, tenant, and role.
+- Never place credentials directly in source code; load secrets through your deployment environment.
+- Use LWT for presence, but treat it as an operational signal rather than proof of device health.
+- Select QoS based on message meaning and measure the cost on constrained networks.
+- Namespace development, staging, and production topics separately.
+

@@ -1,0 +1,138 @@
+---
+title: Request and response RPC
+description: Build transport-independent command and query services with timeouts and correlated replies.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Request and response RPC
+
+RPC is for operations where a caller needs one correlated response: query status, move a motor, update configuration, or invoke a tool. MAGPIE keeps the requester/responder model consistent across ZeroMQ, MQTT, and WebRTC.
+
+## Create a responder
+
+<Tabs groupId="language" queryString>
+<TabItem value="python" label="Python" default>
+
+```python
+from luxai.magpie.transport import ZMQRpcResponder
+
+def handle(request):
+    return {"status": "ok", "echo": request}
+
+server = ZMQRpcResponder("tcp://*:5556")
+try:
+    while True:
+        server.respond(handler=handle, timeout=1.0)
+finally:
+    server.close()
+```
+
+</TabItem>
+<TabItem value="cpp" label="C++">
+
+```cpp
+#include <magpie/serializer/value.hpp>
+#include <magpie/transport/zmq_rpc_responder.hpp>
+
+magpie::ZmqRpcResponder server("tcp://*:5556");
+
+while (true) {
+    server.respond([](const magpie::Value& request) {
+        magpie::Value::Dict response;
+        response["status"] = magpie::Value::fromString("ok");
+        response["echo"] = request;
+        return magpie::Value::fromDict(response);
+    }, 1.0);
+}
+```
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript">
+
+```typescript
+import {MqttConnection, MqttRpcResponder} from '@luxai-qtrobot/magpie'
+
+const connection = new MqttConnection('mqtt://broker.example.com:1883')
+await connection.connect()
+
+const server = new MqttRpcResponder(connection, 'robot/actions')
+server.respond((request) => ({status: 'ok', echo: request}))
+```
+
+</TabItem>
+</Tabs>
+
+## Call the service
+
+<Tabs groupId="language" queryString>
+<TabItem value="python" label="Python" default>
+
+```python
+from luxai.magpie.transport import ZMQRpcRequester
+
+client = ZMQRpcRequester("tcp://127.0.0.1:5556")
+try:
+    response = client.call({"action": "move", "x": 1.0}, timeout=5.0)
+    print(response)
+except TimeoutError:
+    print("The service did not reply in time")
+finally:
+    client.close()
+```
+
+</TabItem>
+<TabItem value="cpp" label="C++">
+
+```cpp
+magpie::ZmqRpcRequester client("tcp://127.0.0.1:5556");
+
+magpie::Value::Dict request;
+request["action"] = magpie::Value::fromString("move");
+request["x"] = magpie::Value::fromDouble(1.0);
+
+try {
+    auto response = client.call(magpie::Value::fromDict(request), 5.0);
+} catch (const magpie::TimeoutError& error) {
+    // Decide whether retrying is safe for this operation.
+}
+```
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript">
+
+```typescript
+import {
+  MqttConnection,
+  MqttRpcRequester,
+  AckTimeoutError,
+  ReplyTimeoutError,
+} from '@luxai-qtrobot/magpie'
+
+const connection = new MqttConnection('mqtt://broker.example.com:1883')
+await connection.connect()
+const client = new MqttRpcRequester(connection, 'robot/actions')
+
+try {
+  const response = await client.call({action: 'move', x: 1.0}, 5)
+  console.log(response)
+} catch (error) {
+  if (error instanceof AckTimeoutError) console.error('No responder acknowledged the request')
+  if (error instanceof ReplyTimeoutError) console.error('The responder did not finish in time')
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Timeouts and retries
+
+A timeout means the requester cannot prove that the operation failed. The responder may have received and executed the request before the reply was lost. Design mutating operations with an application request ID or another idempotency mechanism before retrying automatically.
+
+Use separate timeout budgets for connection setup, acknowledgement, and long-running work when the transport exposes them. A service that legitimately takes minutes should normally return a job identifier and expose progress through streaming or a status method.
+
+## When to add a schema
+
+Raw request objects are suitable for small internal services. Add `JsonRpcSchema` when you need named methods, generated tool descriptions, structured errors, or a contract shared with AI clients. Continue with [Schema-based RPC](./schema-rpc).
+

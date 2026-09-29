@@ -1,0 +1,54 @@
+---
+title: Compatibility matrix
+description: Compare implementation, transport, platform, media, schema, MCP, and tooling support.
+---
+
+# Compatibility matrix
+
+This matrix describes the current repositories represented by this documentation. Check release notes before relying on a feature in a specific published package.
+
+## Transport and runtime
+
+| Capability | Python | C++ | TypeScript / JavaScript |
+|---|---:|---:|---:|
+| ZeroMQ streaming | ✓ | ✓ | — |
+| ZeroMQ RPC | ✓ | ✓ | — |
+| MQTT TCP/TLS | ✓ | ✓ optional | Node.js |
+| MQTT WebSocket | ✓ | ✓ optional | Browser and Node.js |
+| WebRTC data channel | ✓ optional | ✓ optional | Browser |
+| WebRTC native RTP media | ✓ optional | — | Browser |
+| HTTP signaling | ✓ | ✓ | ✓ |
+| MQTT signaling | ✓ | With MQTT build | ✓ |
+| ZeroMQ signaling | ✓ | ✓ | — |
+
+## Application features
+
+| Capability | Python | C++ | TypeScript / JavaScript |
+|---|---:|---:|---:|
+| Primitive frames | ✓ | ✓ | ✓ |
+| Image frames | Optional | Optional | ✓ |
+| Audio frames | Optional | Optional | ✓ |
+| Custom serializer interface | ✓ | ✓ | ✓ |
+| JSON-RPC schema | ✓ | ✓ | ✓ |
+| MCP tool server | ✓ | ✓ | ✓ |
+| MCP client transport | FastMCP | Via Python/TS client | Official TS SDK |
+| Node helpers | ✓ | ✓ | — |
+| Zeroconf discovery | Optional | Core | — |
+| CLI probes | ✓ | — | npm example scripts |
+| SSH over MQTT | ✓ | — | — |
+
+## Platform focus
+
+| Platform | Recommended implementation |
+|---|---|
+| AI/ML and orchestration services | Python |
+| Native Linux robot process | C++ or Python |
+| Raspberry Pi / NVIDIA Jetson | C++ for native integration; Python for fast development and AI |
+| Node.js backend | TypeScript |
+| Browser dashboard | TypeScript over MQTT WebSocket or WebRTC |
+| Agent client | Python FastMCP or TypeScript MCP SDK |
+
+## Known cross-language consideration
+
+C++ currently places WebRTC image and audio frames on the data channel. When pairing C++ with Python, disable native media channels in Python (`use_media_channels=False`) and C++ (`useMediaChannels=false`). Python-to-browser deployments can use native media tracks when both peers declare the same media topics.
+

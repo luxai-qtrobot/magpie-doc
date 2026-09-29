@@ -1,0 +1,79 @@
+---
+title: Security
+description: Apply authentication, encryption, authorization, validation, and safe tool design to MAGPIE deployments.
+---
+
+# Security
+
+MAGPIE provides communication primitives, **not an independent security layer**. Encryption, peer identity, and access control depend on the selected transport and its broker, signaling service, or network deployment. Apply the established security practices for that transport, then enforce authorization and safety again in the application.
+
+This division is intentional: a local ZeroMQ link, a managed MQTT broker, and a browser WebRTC session have different trust and credential models. MAGPIE does not silently add a second security protocol or make an unsecured transport secure.
+
+## Threat model
+
+Before deployment, decide how the system handles:
+
+- An unauthorized client attempting to publish, subscribe, or call a service.
+- A compromised broker or signaling endpoint.
+- Message replay, duplicate delivery, and delayed commands.
+- Malformed or oversized frames and requests.
+- A valid user or agent invoking a tool outside its intended context.
+- Credentials extracted from a robot, browser, container, or log.
+- Loss of connectivity while a physical action is in progress.
+
+## Transport guidance
+
+### ZeroMQ
+
+Plain endpoints do not provide application identity by themselves. Bind only to intended interfaces, use firewall rules, and keep unauthenticated endpoints on trusted networks. Add an authenticated security layer before exposing ZeroMQ to an untrusted network.
+
+### MQTT
+
+- Use `mqtts://` or `wss://` and verify the broker certificate.
+- Give devices unique credentials; do not share one fleet password.
+- Restrict publish and subscribe paths with broker ACLs.
+- Separate tenants, environments, and robot identities in topic namespaces.
+- Rotate credentials and revoke an individual device without affecting the fleet.
+- Treat retained messages and LWT status as untrusted input until validated.
+
+### WebRTC
+
+WebRTC encrypts peer traffic, but peer authorization begins at signaling. Authenticate signaling requests, authorize membership in each session, prevent a third participant, expire abandoned sessions, and protect TURN credentials. An opaque relay still needs rate limits and abuse protection.
+
+## Application controls
+
+- Validate decoded payloads and schema parameters before use.
+- Limit message, image, audio, and queue sizes.
+- Bound every network wait with a timeout.
+- Use request IDs or operation tokens for safely retryable actions.
+- Apply authorization to service methods, not only to the connection.
+- Avoid returning secrets, filesystem paths, or internal exceptions to remote clients.
+- Record security-relevant calls with caller, target, request ID, outcome, and timestamp.
+
+## AI-agent and robot safety
+
+Treat agent input as untrusted even when the agent is authenticated. Tool descriptions help an agent choose correctly but do not enforce policy.
+
+Keep hard safety limits in the robot/control layer. Validate motion ranges and units, rate-limit actions, require confirmation for high-impact operations, and make emergency-stop behavior independent of MAGPIE, MCP, and cloud availability.
+
+## Secret handling
+
+Load broker passwords, client certificates, TURN credentials, and tokens from the deployment environment or a secret manager. Do not place them in source files, example commands committed to Git, browser bundles, URL query strings, or verbose logs.
+
+## Package and dependency security
+
+Like any Python, C++, or JavaScript library, MAGPIE and its optional features depend on third-party packages. A vulnerability report does not automatically mean a MAGPIE application is exploitable—the affected code must be reachable in the deployed configuration—but it must still be reviewed rather than ignored.
+
+- Install packages from the official PyPI, npm, Debian, or project release channels and verify release artifacts where checksums or signatures are provided.
+- Pin application dependencies with a lockfile or reproducible build manifest. Update them through tested, reviewed changes instead of allowing unbounded production upgrades.
+- Enable dependency scanning for every language you ship, including transitive dependencies and container or operating-system packages.
+- Install only the MAGPIE extras and optional libraries the deployment uses; a smaller dependency set reduces both attack surface and update work.
+- When a scanner reports a vulnerability, check the affected version, feature, runtime exposure, and upstream remediation. Upgrade promptly when the vulnerable path is reachable.
+- Report suspected MAGPIE vulnerabilities privately to the project maintainers before publishing operational details.
+
+:::warning[Examples are not production policy]
+
+Documentation examples use placeholder endpoints and compact configuration to teach one concept. Add your organization’s identity, authorization, certificate, audit, and safety requirements before deployment.
+
+:::
+

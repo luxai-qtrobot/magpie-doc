@@ -1,0 +1,151 @@
+---
+title: Cross-language systems
+description: Connect Python, C++, and TypeScript MAGPIE components through shared frames, topics, RPC, and schemas.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Cross-language systems
+
+This recipe publishes a `StringFrame` to one MQTT topic. Any Python, C++, or TypeScript implementation can be the publisher or subscriber because the frame envelope and default MessagePack representation are shared.
+
+## Common configuration
+
+Use the same values in every process:
+
+```text
+Broker: mqtt://broker.example.com:1883
+Topic:  magpie/demo/greeting
+```
+
+Give each process a unique MQTT client ID when configuring production connections.
+
+## Publish
+
+<Tabs groupId="language" queryString>
+<TabItem value="python" label="Python" default>
+
+```python
+from luxai.magpie.frames import StringFrame
+from luxai.magpie.transport import MqttConnection, MqttStreamWriter
+
+connection = MqttConnection("mqtt://broker.example.com:1883")
+connection.connect()
+
+writer = MqttStreamWriter(connection)
+writer.write(
+    StringFrame(value="hello from Python").to_dict(),
+    topic="magpie/demo/greeting",
+)
+
+writer.close()
+connection.disconnect()
+```
+
+</TabItem>
+<TabItem value="cpp" label="C++">
+
+```cpp
+#include <magpie/frames/primitive_frames.hpp>
+#include <magpie/transport/mqtt_connection.hpp>
+#include <magpie/transport/mqtt_stream_writer.hpp>
+
+auto connection = std::make_shared<magpie::MqttConnection>(
+    "mqtt://broker.example.com:1883");
+connection->connect();
+
+magpie::MqttStreamWriter writer(connection);
+writer.write(magpie::StringFrame("hello from C++"), "magpie/demo/greeting");
+
+writer.close();
+connection->disconnect();
+```
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript">
+
+```typescript
+import {MqttConnection, MqttStreamWriter, StringFrame} from '@luxai-qtrobot/magpie'
+
+const connection = new MqttConnection('mqtt://broker.example.com:1883')
+await connection.connect()
+
+const writer = new MqttStreamWriter(connection)
+const frame = new StringFrame({value: 'hello from TypeScript'})
+await writer.write(frame.toDict(), 'magpie/demo/greeting')
+
+writer.close()
+await connection.disconnect()
+```
+
+</TabItem>
+</Tabs>
+
+## Subscribe
+
+<Tabs groupId="language" queryString>
+<TabItem value="python" label="Python" default>
+
+```python
+from luxai.magpie.frames import Frame
+from luxai.magpie.transport import MqttConnection, MqttStreamReader
+
+connection = MqttConnection("mqtt://broker.example.com:1883")
+connection.connect()
+reader = MqttStreamReader(connection, topic="magpie/demo/greeting")
+
+raw, topic = reader.read(timeout=10)
+frame = Frame.from_dict(raw)
+print(topic, frame.value)
+```
+
+</TabItem>
+<TabItem value="cpp" label="C++">
+
+```cpp
+magpie::MqttStreamReader reader(connection, "magpie/demo/greeting");
+std::unique_ptr<magpie::Frame> frame;
+std::string topic;
+
+if (reader.read(frame, topic, 10.0)) {
+    if (auto* text = dynamic_cast<magpie::StringFrame*>(frame.get())) {
+        magpie::Logger::info(text->value());
+    }
+}
+```
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript">
+
+```typescript
+import {Frame, MqttConnection, MqttStreamReader, StringFrame} from '@luxai-qtrobot/magpie'
+
+const connection = new MqttConnection('mqtt://broker.example.com:1883')
+await connection.connect()
+const reader = new MqttStreamReader(connection, {topic: 'magpie/demo/greeting'})
+
+const [raw, topic] = await reader.read(10)
+const frame = Frame.fromDict(raw as Record<string, unknown>) as StringFrame
+console.log(topic, frame.value)
+```
+
+</TabItem>
+</Tabs>
+
+## Add RPC
+
+For cross-language RPC, load the same JSON method schema on both sides. A C++ `McpSchema` server can be called by Python FastMCP or the TypeScript MCP SDK; a Python schema responder can be called from C++ or TypeScript through the corresponding schema-aware requester.
+
+Keep one contract file, test it against every language, and avoid redefining method shapes independently in several repositories.
+
+## Integration-test checklist
+
+- Each language can deserialize every frame type the deployment uses.
+- Integer ranges, byte arrays, image metadata, and timestamps survive a round trip.
+- Topic and service naming is identical.
+- Timeouts produce the expected language-specific exceptions.
+- JSON-RPC error codes remain stable.
+- WebRTC peers agree on signaling, media-channel settings, and codecs.
+- Mixed package versions are pinned and tested together before release.
+

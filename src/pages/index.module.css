@@ -1,0 +1,510 @@
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 7.5rem 0 6.5rem;
+  background:
+    radial-gradient(circle at 76% 20%, rgba(37, 211, 171, 0.14), transparent 28rem),
+    radial-gradient(circle at 10% 90%, rgba(94, 123, 255, 0.13), transparent 32rem),
+    linear-gradient(145deg, #071316 0%, #0b171d 52%, #0b1324 100%);
+  color: #f6fbfa;
+}
+
+.hero::after {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, black, transparent 88%);
+  content: '';
+  pointer-events: none;
+}
+
+.heroGlow {
+  position: absolute;
+  top: -18rem;
+  right: -12rem;
+  width: 48rem;
+  height: 48rem;
+  border: 1px solid rgba(79, 226, 189, 0.13);
+  border-radius: 50%;
+  box-shadow: 0 0 0 7rem rgba(79, 226, 189, 0.018), 0 0 0 14rem rgba(79, 226, 189, 0.012);
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(22rem, 0.85fr);
+  gap: 5rem;
+  align-items: center;
+}
+
+.heroCopy h1 {
+  max-width: 840px;
+  margin: 1rem 0 1.5rem;
+  color: #f6fbfa;
+  font-size: clamp(3.15rem, 6.4vw, 6.3rem);
+  line-height: 0.98;
+  letter-spacing: -0.065em;
+}
+
+.heroCopy h1 span {
+  color: #58e0bd;
+}
+
+.kicker,
+.sectionHeading > span,
+.ctaInner > div > span {
+  color: #59dfbd;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.heroLead {
+  max-width: 720px;
+  margin: 0;
+  color: #d8e6e3;
+  font-size: clamp(1.25rem, 2.2vw, 1.72rem);
+  line-height: 1.45;
+}
+
+.heroSupport {
+  max-width: 650px;
+  margin: 1rem 0 0;
+  color: #93aaa7;
+  font-size: 1.04rem;
+  line-height: 1.7;
+}
+
+.heroActions,
+.ctaActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: 2rem;
+}
+
+.hero :global(.button--secondary) {
+  border-color: rgba(255, 255, 255, 0.17);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e8f1ef;
+}
+
+.hero :global(.button--secondary:hover) {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.11);
+  color: white;
+}
+
+.signalRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 2rem;
+}
+
+.signalRow span {
+  padding: 0.4rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  color: #9eb3af;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.74rem;
+}
+
+.heroVisual {
+  position: relative;
+  display: flex;
+  min-height: 31rem;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.logoOrbit {
+  position: absolute;
+  top: 0;
+  display: grid;
+  width: 20rem;
+  height: 20rem;
+  place-items: center;
+  border: 1px solid rgba(90, 224, 190, 0.18);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(89, 224, 189, 0.09), transparent 68%);
+}
+
+.logoOrbit img {
+  z-index: 2;
+  width: 11rem;
+  filter: invert(1) brightness(1.4);
+  opacity: 0.88;
+}
+
+.orbitOne,
+.orbitTwo {
+  position: absolute;
+  border: 1px solid rgba(119, 143, 255, 0.34);
+  border-radius: 50%;
+}
+
+.orbitOne {
+  inset: 1.5rem;
+  border-right-color: #5ce0bd;
+  transform: rotate(25deg);
+}
+
+.orbitTwo {
+  inset: 4rem;
+  border-bottom-color: #7a90ff;
+  transform: rotate(-18deg);
+}
+
+.installPanel {
+  z-index: 3;
+  width: min(100%, 29rem);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 16px;
+  background: rgba(5, 12, 16, 0.92);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(18px);
+}
+
+.terminalBar {
+  display: flex;
+  gap: 0.38rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.terminalBar > span:not(.terminalTitle) {
+  width: 0.58rem;
+  height: 0.58rem;
+  border-radius: 50%;
+  background: #31434a;
+}
+
+.terminalBar > span:nth-child(1) { background: #ff6f70; }
+.terminalBar > span:nth-child(2) { background: #f4c95d; }
+.terminalBar > span:nth-child(3) { background: #58d8a0; }
+
+.terminalTitle {
+  margin-left: auto;
+  color: #6e8482;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.7rem;
+}
+
+.languageTabs {
+  display: flex;
+  gap: 0.35rem;
+  padding: 1rem 1rem 0;
+}
+
+.languageTab {
+  padding: 0.42rem 0.68rem;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #849a97;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.languageTab:hover,
+.languageTabActive {
+  background: rgba(89, 224, 189, 0.12);
+  color: #6ce8c7;
+}
+
+.commandLine {
+  display: flex;
+  gap: 0.85rem;
+  align-items: center;
+  margin: 1rem;
+  padding: 1.05rem 1rem;
+  border: 1px solid rgba(91, 224, 190, 0.14);
+  border-radius: 9px;
+  background: #060c10;
+  color: #dbe7e4;
+}
+
+.commandLine span { color: #5ce0bd; }
+.commandLine code {
+  padding: 0;
+  background: transparent;
+  color: #f0f8f6;
+  font-size: 0.84rem;
+  -webkit-text-fill-color: #f0f8f6;
+}
+.installPanel p { margin: 0 1rem 1rem; color: #738b88; font-size: 0.77rem; }
+
+.promiseSection,
+.languagesSection {
+  padding: 7rem 0;
+}
+
+.sectionHeading {
+  max-width: 790px;
+  margin-bottom: 3rem;
+}
+
+.sectionHeading h2,
+.ctaInner h2 {
+  margin: 0.75rem 0 1rem;
+  font-size: clamp(2.1rem, 4vw, 3.5rem);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+}
+
+.sectionHeading p {
+  max-width: 680px;
+  margin: 0;
+  color: var(--magpie-muted);
+  font-size: 1.08rem;
+  line-height: 1.75;
+}
+
+.flow {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto 1.25fr auto 1fr;
+  gap: 1rem;
+  align-items: stretch;
+  padding: 2rem 2rem 5.3rem;
+  border: 1px solid var(--magpie-border);
+  border-radius: 24px;
+  background: var(--magpie-surface);
+  box-shadow: var(--magpie-shadow);
+}
+
+.flowColumn {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 1.15rem;
+  border: 1px solid var(--magpie-border);
+  border-radius: 14px;
+  background: var(--magpie-surface-strong);
+}
+
+.flowCore {
+  border-color: rgba(25, 171, 139, 0.34);
+  background: linear-gradient(145deg, rgba(42, 201, 164, 0.1), var(--magpie-surface-strong));
+}
+
+.flowLabel {
+  margin-bottom: 0.4rem;
+  color: var(--magpie-muted);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.69rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.flowNode,
+.flowPrimitives span {
+  padding: 0.58rem 0.72rem;
+  border-radius: 8px;
+  background: var(--magpie-soft);
+  font-size: 0.83rem;
+  font-weight: 600;
+}
+
+.flowBrand {
+  padding: 1.15rem;
+  border-radius: 10px;
+  background: #0e9079;
+  color: white;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-align: center;
+}
+
+.flowPrimitives {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.flowArrow {
+  align-self: center;
+  color: var(--ifm-color-primary);
+  font-size: 1.6rem;
+}
+
+.transportRail {
+  position: absolute;
+  right: 2rem;
+  bottom: 1.5rem;
+  left: 2rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.55rem;
+}
+
+.transportRail span {
+  padding: 0.62rem;
+  border: 1px solid var(--magpie-border);
+  border-radius: 999px;
+  color: var(--magpie-muted);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.74rem;
+  text-align: center;
+}
+
+.featureSection {
+  padding: 0 0 7rem;
+}
+
+.featureGrid,
+.languageCards {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+}
+
+.featureCard {
+  position: relative;
+  min-height: 17rem;
+  padding: 1.7rem;
+  overflow: hidden;
+  border: 1px solid var(--magpie-border);
+  border-radius: 18px;
+  background: var(--magpie-surface);
+}
+
+.featureCard > span {
+  display: block;
+  min-height: 3.4rem;
+  padding-right: 4.5rem;
+  color: var(--ifm-color-primary);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.featureCard h3 {
+  margin: 1rem 0 0.8rem;
+  font-size: 1.3rem;
+}
+
+.featureCard p {
+  margin: 0;
+  color: var(--magpie-muted);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.featureNumber {
+  position: absolute;
+  top: 0.8rem;
+  right: 1.2rem;
+  color: var(--magpie-soft);
+  font-size: 3.5rem;
+  font-weight: 800;
+}
+
+.languagesSection {
+  border-top: 1px solid var(--magpie-border);
+  background: var(--magpie-section);
+}
+
+.languageCards {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.languageCard {
+  display: flex;
+  min-height: 14rem;
+  flex-direction: column;
+  padding: 1.8rem;
+  border: 1px solid var(--magpie-border);
+  border-radius: 18px;
+  background: var(--magpie-surface);
+  color: var(--ifm-font-color-base);
+  text-decoration: none;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.languageCard:hover {
+  border-color: var(--ifm-color-primary);
+  box-shadow: var(--magpie-shadow);
+  color: var(--ifm-font-color-base);
+  text-decoration: none;
+  transform: translateY(-4px);
+}
+
+.languageCard strong {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.languageCard span {
+  color: var(--magpie-muted);
+  line-height: 1.65;
+}
+
+.languageCard em {
+  margin-top: auto;
+  padding-top: 1.5rem;
+  color: var(--ifm-color-primary);
+  font-size: 0.86rem;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.ctaSection {
+  padding: 5rem 0;
+  background: #071316;
+  color: white;
+}
+
+.ctaInner {
+  display: flex;
+  gap: 3rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ctaInner h2 {
+  max-width: 690px;
+  margin-bottom: 0;
+  color: white;
+}
+
+.ctaActions {
+  flex-shrink: 0;
+  margin: 0;
+}
+
+@media (max-width: 996px) {
+  .hero { padding: 5rem 0; }
+  .heroInner { grid-template-columns: 1fr; gap: 3rem; }
+  .heroVisual { min-height: 27rem; }
+  .featureGrid { grid-template-columns: repeat(2, 1fr); }
+  .flow { grid-template-columns: 1fr; padding-bottom: 2rem; }
+  .flowArrow { transform: rotate(90deg); justify-self: center; }
+  .transportRail { position: static; grid-template-columns: repeat(2, 1fr); }
+  .ctaInner { align-items: flex-start; flex-direction: column; }
+}
+
+@media (max-width: 650px) {
+  .heroCopy h1 { font-size: 3.1rem; }
+  .heroActions .button, .ctaActions .button { width: 100%; }
+  .heroVisual { min-height: 25rem; }
+  .logoOrbit { width: 16rem; height: 16rem; }
+  .installPanel { width: 100%; }
+  .featureGrid, .languageCards { grid-template-columns: 1fr; }
+  .promiseSection, .languagesSection { padding: 5rem 0; }
+}

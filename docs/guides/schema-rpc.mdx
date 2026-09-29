@@ -1,0 +1,126 @@
+---
+title: Schema-based RPC
+description: Define discoverable JSON-RPC methods and attach them to any MAGPIE responder.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Schema-based RPC
+
+`JsonRpcSchema` turns a general request/reply channel into a named API. Methods carry descriptions and JSON Schema input/output contracts; the schema validates dispatch and gives MCP a source of tool definitions.
+
+## Define the contract once
+
+The portable form is a list of tool-like method definitions:
+
+```json title="robot-api.json"
+[
+  {
+    "name": "move",
+    "description": "Move the robot to a named location",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "location": {"type": "string"},
+        "speed": {"type": "number", "minimum": 0, "maximum": 1}
+      },
+      "required": ["location"]
+    },
+    "outputSchema": {
+      "type": "object",
+      "properties": {"accepted": {"type": "boolean"}}
+    }
+  }
+]
+```
+
+Keep this contract in source control and load it from every implementation that serves or calls the method.
+
+## Attach handlers
+
+<Tabs groupId="language" queryString>
+<TabItem value="python" label="Python" default>
+
+```python
+from luxai.magpie.schema import JsonRpcSchema
+from luxai.magpie.transport import ZMQRpcResponder
+
+schema = JsonRpcSchema.from_json_file("robot-api.json")
+
+@schema.handler("move")
+def move(location, speed=0.5):
+    return {"accepted": True}
+
+server = ZMQRpcResponder("tcp://*:5556", schema=schema)
+server.respond(timeout=1.0)
+```
+
+Python can also infer a method contract from type hints:
+
+```python
+schema = JsonRpcSchema()
+
+@schema.method()
+def add(a: float, b: float) -> float:
+    """Add two numbers."""
+    return a + b
+```
+
+</TabItem>
+<TabItem value="cpp" label="C++">
+
+```cpp
+#include <magpie/schema/json_rpc_schema.hpp>
+#include <magpie/transport/zmq_rpc_responder.hpp>
+
+auto schema = magpie::JsonRpcSchema::from_json_file("robot-api.json");
+schema->set_handler("move", [](const magpie::Value::Dict& params) {
+    magpie::Value::Dict result;
+    result["accepted"] = magpie::Value::fromBool(true);
+    return magpie::Value::fromDict(result);
+});
+
+magpie::ZmqRpcResponder server("tcp://*:5556", nullptr, true, schema);
+```
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript">
+
+```typescript
+import {JsonRpcSchema, MqttConnection, MqttRpcResponder} from '@luxai-qtrobot/magpie'
+
+const schema = JsonRpcSchema.fromJSON(await fetch('/robot-api.json').then((r) => r.json()))
+
+schema.handler('move', (params: unknown) => {
+  const {location, speed = 0.5} = params as {location: string; speed?: number}
+  console.log('Moving to', location, 'at', speed)
+  return {accepted: true}
+})
+
+const connection = new MqttConnection('wss://broker.example.com/mqtt')
+await connection.connect()
+const server = new MqttRpcResponder(connection, 'robot/actions', {schema})
+```
+
+</TabItem>
+</Tabs>
+
+## Call a named method
+
+Schema-aware requesters wrap calls in JSON-RPC automatically. Python offers an attribute proxy; TypeScript and C++ provide explicit method calls.
+
+```python
+client = ZMQRpcRequester("tcp://127.0.0.1:5556", schema=schema)
+result = client.move(location="lab", speed=0.4)
+# Equivalent: client.call("move", location="lab", speed=0.4)
+```
+
+## Error behavior
+
+Schema dispatch distinguishes malformed requests, unknown methods, invalid parameters, handler failures, and valid results. Catch `JsonRpcError` on the caller and treat its code as part of the service contract. Avoid returning ad-hoc error dictionaries from handlers when a structured RPC error is more appropriate.
+
+## From schema to AI tool
+
+`McpSchema` extends the same method model with MCP initialization and tool discovery. An existing schema-oriented service can become agent-consumable without introducing a transport-specific gateway. See [MCP integration](../ai/mcp).
+
