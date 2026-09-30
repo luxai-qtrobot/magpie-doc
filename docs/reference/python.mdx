@@ -122,19 +122,22 @@ finally:
 
 ### WebRTC
 
-Create a shared `WebRTCConnection` with a signaling factory, call `connect()`, then construct stream or RPC children around it.
+Create a shared `WebRTCConnection` with a signaling factory, call `connect()`, then construct stream or RPC children around it. A connection manages one WebRTC link per remote peer.
 
 | API | Purpose |
 |---|---|
-| `WebRTCConnection.with_zmq(endpoint, session_id, bind=..., options=...)` | Rendezvous on a local/LAN ZeroMQ endpoint. |
-| `WebRTCConnection.with_mqtt(broker_uri, session_id, options=..., reconnect=...)` | Rendezvous through MQTT, including peers behind NAT. |
-| `WebRTCConnection.with_http(signal_url, session_id, headers=..., options=..., reconnect=...)` | Rendezvous through an HTTP signaling service. |
-| `connect(timeout=None)` / `disconnect()` | Establishes or closes the peer connection. |
-| `is_connected()` | Reports peer connection state. |
+| `WebRTCConnection.with_zmq(endpoint, session_id, bind=..., options=..., role="mesh", multiplex=False)` | Rendezvous on a local/LAN ZeroMQ endpoint. Enable `multiplex` on every participant for multiple peers. |
+| `WebRTCConnection.with_mqtt(broker_uri, session_id, options=..., reconnect=..., role="mesh")` | Rendezvous through MQTT, including peers behind NAT. |
+| `WebRTCConnection.with_http(signal_url, session_id, headers=..., options=..., reconnect=..., role="mesh")` | Rendezvous through an HTTP signaling service. |
+| `connect(timeout=None)` / `disconnect()` | Starts signaling, waits for the first peer, or closes all peer links. |
+| `peer_id` / `peer_ids` | Returns this participant's ID or the currently connected remote IDs. |
+| `is_connected` | Reports whether at least one remote peer is connected. |
 | `WebRtcStreamWriter(connection, queue_size=10)` | Sends values and frames. Media frames may use negotiated media tracks. |
 | `WebRtcStreamReader(connection, topic, queue_size=10)` | Reads data or media frames for a topic. |
 | `WebRTCRpcRequester(connection, service_name, name=None, ack_timeout=2.0, schema=None)` | Calls a peer service. |
 | `WebRTCRpcResponder(connection, service_name, name=None, schema=None)` | Responds for a peer service. |
+
+`role` accepts `"mesh"` (default, connect every participant), `"host"` (accept clients), or `"client"` (connect to hosts, not other clients). Stream writes go to all connected peers; RPC replies are routed back to the requesting peer.
 
 `WebRTCOptions` configures STUN/TURN, codecs, media-channel use, and connection behavior. `WebRTCTurnServer` describes a TURN URL and credentials.
 

@@ -8,19 +8,30 @@ import TabItem from '@theme/TabItem';
 
 # WebRTC
 
-WebRTC creates a peer-to-peer connection for MAGPIE streams, RPC, and media. MQTT, ZeroMQ, or HTTP is used only to exchange signaling messages; application data leaves the signaling path after negotiation.
+WebRTC creates direct peer-to-peer links for MAGPIE streams, RPC, and media. One `WebRTCConnection` can manage a separate link to each remote peer. MQTT, ZeroMQ, or HTTP is used only to exchange signaling messages; application data leaves the signaling path after negotiation.
 
 ```mermaid
 sequenceDiagram
-    participant A as Peer A
+    participant H as Host
     participant S as Signaling
-    participant B as Peer B
+    participant A as Client A
+    participant B as Client B
+    H->>S: hello / SDP / ICE
     A->>S: hello / SDP / ICE
     B->>S: hello / SDP / ICE
-    S-->>A: peer messages
-    S-->>B: peer messages
-    A<<->>B: WebRTC data channel and RTP media
+    H<<->>A: WebRTC link
+    H<<->>B: WebRTC link
 ```
+
+## Choose a topology
+
+The `role` setting controls which participants connect:
+
+- `mesh` (default): every participant connects to every other participant.
+- `host`: accepts links from clients, typically for a robot, service, or media source.
+- `client`: connects to hosts but not to other clients, typically for callers or viewers.
+
+Use one host and multiple clients when several applications consume the same service. `connect()` returns when the first peer is ready; additional peers may join later. Stream writers publish to all connected peers, while RPC acknowledgements and replies return only to the requester. Connected remote IDs are available through `peer_ids` in Python, `peerIds()` in C++, and `peerIds` in TypeScript.
 
 ## Choose signaling
 
@@ -49,6 +60,7 @@ options = WebRTCOptions(
 connection = WebRTCConnection.with_mqtt(
     "mqtts://broker.example.com:8883",
     session_id="robot-01",
+    role="host",
     options=options,
     reconnect=True,
 )
@@ -67,6 +79,7 @@ auto signaler = std::make_shared<magpie::HttpSignaler>(
 
 magpie::WebRtcOptions options;
 options.useMediaChannels = false;
+options.role = "host";
 
 auto connection = std::make_shared<magpie::WebRtcConnection>(
     signaler, options);
@@ -83,6 +96,7 @@ const connection = await WebRtcConnection.withHttp(
   'https://signal.example.com/webrtc',
   'robot-01',
   {
+    role: 'client',
     reconnect: true,
     webrtcOptions: {videoTopics: ['robot/camera/color']},
   },
@@ -96,6 +110,8 @@ MAGPIE.js WebRTC uses browser APIs and is not available in Node.js.
 </Tabs>
 
 Create `WebRtcStreamWriter`/`WebRtcStreamReader` and `WebRTCRpcRequester`/`WebRTCRpcResponder` from the connected peer just as you create components from a shared MQTT connection.
+
+For multi-peer ZeroMQ signaling, enable multiplex mode on the bound signaler and every connecting participant. The legacy PAIR mode supports two-peer setups.
 
 ## Data channels and media tracks
 

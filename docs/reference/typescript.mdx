@@ -128,7 +128,7 @@ One connection can be shared by many components. Close the children before await
 
 ## WebRTC API
 
-WebRTC is browser-only and uses a signaling channel only to establish the peer connection. Application data then travels through the peer connection.
+WebRTC is browser-only and uses a signaling channel to establish a separate WebRTC link to each remote peer. Application data then travels through those links.
 
 | Factory or method | Purpose |
 |---|---|
@@ -136,9 +136,12 @@ WebRTC is browser-only and uses a signaling channel only to establish the peer c
 | `WebRtcConnection.withHttp(signalUrl, sessionId, options?)` | Creates a connection using an HTTP signaling relay. Supports static or refreshed request headers. |
 | `connect(timeout?)` | Establishes the peer connection; timeout is in seconds. |
 | `disconnect()` | Closes peer and signaling resources. |
+| `peerIds` | Lists the currently connected remote peer IDs. |
 | `isVideoNegotiated(topic)` / `isAudioNegotiated(topic)` | Reports whether a media topic has a negotiated native track. |
 | `sendVideoTrack(track, topic)` / `sendAudioTrack(track, topic)` | Publishes a browser `MediaStreamTrack`. |
-| `receiveVideoTrack(topic)` / `receiveAudioTrack(topic)` | Resolves with the remote media track. |
+| `receiveVideoTrack(topic, peerId?)` / `receiveAudioTrack(topic, peerId?)` | Resolves with a remote media track, optionally from a specific peer. |
+
+The connection option `role` accepts `'mesh'` (default, connect every participant), `'host'` (accept clients), or `'client'` (connect to hosts, not other clients). Stream writes go to all connected peers; RPC replies return to the requester.
 
 `WebRtcOptions` configures STUN servers, TURN servers, ICE policy, data-channel ordering and retransmits, media-channel use, JPEG quality, and negotiated media topics.
 
@@ -155,6 +158,7 @@ const connection = await WebRtcConnection.withHttp(
   'robot-01',
   {
     headersProvider: async () => ({Authorization: `Bearer ${await getToken()}`}),
+    role: 'client',
     reconnect: true,
     webrtcOptions: {videoTopics: ['/camera/color/image']},
   },

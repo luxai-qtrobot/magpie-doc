@@ -123,12 +123,15 @@ Share one `std::shared_ptr<MqttConnection>` between MQTT components. Close reade
 
 | API | Purpose |
 |---|---|
-| `WebRtcConnection` | Owns peer state, negotiated channels/tracks, signaling, and reconnect behavior. |
-| `connect(timeoutSec)` / `disconnect()` / `isConnected()` | Controls and inspects the peer connection. |
+| `WebRtcConnection` | Owns a separate WebRTC link for each remote peer. |
+| `connect(timeoutSec)` / `disconnect()` / `isConnected()` | Waits for the first peer, closes all links, or reports whether any peer is connected. |
+| `peerIds()` | Returns the IDs of currently connected remote peers. |
 | `WebRtcStreamWriter` / `WebRtcStreamReader` | Sends and receives frames by topic. |
 | `WebRtcRpcRequester` / `WebRtcRpcResponder` | Calls or exposes a peer service. |
 | `HttpSignaler`, `ZmqSignaler`, `MqttSignaler` | Exchange offer, answer, and ICE messages. |
-| `WebRtcOptions` | Configures STUN/TURN, codecs, and channel behavior. |
+| `WebRtcOptions` | Configures STUN/TURN, codecs, channel behavior, and `role`. |
+
+Set `WebRtcOptions::role` to `"mesh"` (default, connect every participant), `"host"` (accept clients), or `"client"` (connect to hosts, not other clients). Stream writes go to all connected peers; RPC replies return to the requesting peer. Multi-peer ZeroMQ signaling requires multiplex mode on every participant.
 
 MAGPIE C++ currently carries media frames over the reliable WebRTC data channel. Set Python `use_media_channels=False` when interoperating with C++ so both peers agree on routing.
 
