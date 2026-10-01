@@ -13,8 +13,8 @@ const config: Config = {
     v4: true,
   },
 
-  url: 'https://luxai-qtrobot.github.io',
-  baseUrl: '/magpie-doc/',
+  url: 'https://magpie.luxai.com',
+  baseUrl: '/',
   organizationName: 'luxai-qtrobot',
   projectName: 'magpie-doc',
   trailingSlash: false,
