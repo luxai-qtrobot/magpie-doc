@@ -136,6 +136,11 @@ const config: Config = {
           position: 'left',
         },
         {
+          to: '/playground',
+          label: 'Playground',
+          position: 'left',
+        },
+        {
           to: '/docs/reference',
           label: 'API',
           position: 'left',
