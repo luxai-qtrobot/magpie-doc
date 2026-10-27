@@ -62,7 +62,7 @@ On ordinary stream transports, media frames are serialized like other values. We
 
 ## Custom serializers
 
-MessagePack is the default because it is compact and available across all MAGPIE languages. Python, C++, and TypeScript expose serializer interfaces for applications that require JSON, Protobuf, FlatBuffers, or another binary representation.
+MessagePack is the default because it is compact and available across all MAGPIE languages. Python, C++, TypeScript, and MicroPython expose serializer interfaces for applications that require another shared representation. On constrained boards, account for the code size and heap cost of a replacement serializer.
 
 Only use a custom serializer when every communicating endpoint understands it. A custom serializer changes the wire contract even when the MAGPIE API remains the same.
 

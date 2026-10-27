@@ -19,6 +19,7 @@ Transport choice is a deployment decision. MAGPIE keeps the application model st
 | Python | ✓ | ✓ | ✓ |
 | C++ | ✓ | Optional | Optional |
 | TypeScript | — | ✓ | Browser |
+| MicroPython | — | ✓ | — |
 
 ## A practical decision tree
 
@@ -39,7 +40,7 @@ flowchart TD
 ## Recommended defaults
 
 - Start with **ZeroMQ** for a local Python/C++ system with fixed endpoints.
-- Start with **MQTT** for remote robots, fleets, browser dashboards, or services behind NAT.
+- Start with **MQTT** for remote robots, fleets, browser dashboards, microcontrollers, or services behind NAT.
 - Add **WebRTC** when peer-to-peer latency, bandwidth, or native audio/video tracks matter.
 - Use **MQTT or HTTP only for WebRTC signaling** when you do not want brokered data in the hot path.
 

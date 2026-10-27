@@ -186,6 +186,10 @@ body {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.doc-card-grid--four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .doc-card {
   display: flex;
   min-height: 12rem;
@@ -230,11 +234,13 @@ body {
 
 @media (max-width: 996px) {
   .navbar__title { display: inline; }
+  .doc-card-grid--four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 720px) {
   .doc-card-grid,
-  .doc-card-grid--three {
+  .doc-card-grid--three,
+  .doc-card-grid--four {
     grid-template-columns: 1fr;
   }
 }

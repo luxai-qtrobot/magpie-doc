@@ -47,7 +47,7 @@ The application calls `write`, `read`, `call`, or `respond`. A transport impleme
 
 ### Interoperability is a default, not a bridge
 
-Python, C++, and TypeScript share message envelopes, frame fields, default MessagePack serialization, JSON-RPC semantics, and MCP behavior. A mixed-language deployment should not need a translation service. Applications may supply another serializer when every endpoint on that path uses the same format.
+Python, C++, TypeScript, and MicroPython share message envelopes, frame fields, default MessagePack serialization, JSON-RPC semantics, and MCP behavior. A mixed-language deployment should not need a translation service. Applications may supply another serializer when every endpoint on that path uses the same format.
 
 ### The core should stay understandable
 

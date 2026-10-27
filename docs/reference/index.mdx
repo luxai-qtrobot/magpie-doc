@@ -1,7 +1,7 @@
 ---
 id: index
 title: API reference
-description: Entry points and public API maps for Python, C++, and TypeScript MAGPIE.
+description: Entry points and public API maps for Python, C++, TypeScript, and MicroPython MAGPIE.
 slug: /reference
 ---
 
@@ -11,7 +11,7 @@ import Link from '@docusaurus/Link';
 
 The reference is organized by implementation because naming conventions, ownership, and asynchronous behavior follow each language. Conceptual roles remain aligned.
 
-<div className="doc-card-grid doc-card-grid--three">
+<div className="doc-card-grid doc-card-grid--four">
   <Link className="doc-card" to="/docs/reference/python">
     <span>luxai-magpie</span>
     <strong>Python API</strong>
@@ -27,22 +27,27 @@ The reference is organized by implementation because naming conventions, ownersh
     <strong>TypeScript API</strong>
     <p>Browser and Node.js exports, async methods, frames, schema, and MCP.</p>
   </Link>
+  <Link className="doc-card" to="/docs/reference/micropython">
+    <span>magpie-upy</span>
+    <strong>MicroPython API</strong>
+    <p>Async MQTT, streams, RPC, primitive frames, schemas, and on-device MCP tools.</p>
+  </Link>
 </div>
 
 ## Shared conceptual surface
 
-| Concept | Python | C++ | TypeScript |
-|---|---|---|---|
-| Streaming base | `StreamWriter`, `StreamReader` | `StreamWriter`, `StreamReader` | `StreamWriter`, `StreamReader` |
-| RPC base | `RpcRequester`, `RpcResponder` | `RpcRequester`, `RpcResponder` | `RpcRequester`, `RpcResponder` |
-| MQTT connection | `MqttConnection` | `MqttConnection` | `MqttConnection` |
-| WebRTC connection | `WebRTCConnection` | `WebRtcConnection` | `WebRtcConnection` |
-| Method schema | `JsonRpcSchema` | `JsonRpcSchema` | `JsonRpcSchema` |
-| MCP tools | `McpSchema`, `McpTransport` | `McpSchema` server | `McpSchema`, `McpTransport` |
+| Concept | Python | C++ | TypeScript | MicroPython |
+|---|---|---|---|---|
+| Streaming base | `StreamWriter`, `StreamReader` | `StreamWriter`, `StreamReader` | `StreamWriter`, `StreamReader` | Async `StreamWriter`, `StreamReader` |
+| RPC base | `RpcRequester`, `RpcResponder` | `RpcRequester`, `RpcResponder` | `RpcRequester`, `RpcResponder` | Async `RpcRequester`, `RpcResponder` |
+| MQTT connection | `MqttConnection` | `MqttConnection` | `MqttConnection` | Async `MqttConnection` |
+| WebRTC connection | `WebRTCConnection` | `WebRtcConnection` | `WebRtcConnection` | — |
+| Method schema | `JsonRpcSchema` | `JsonRpcSchema` | `JsonRpcSchema` | `JsonRpcSchema` |
+| MCP tools | `McpSchema`, `McpTransport` | `McpSchema` server | `McpSchema`, `McpTransport` | `McpSchema` server |
 
 Use the language pages for exact spelling and lifecycle behavior. Use [Compatibility](/docs/reference/compatibility) before planning a mixed-language deployment.
 
 ## Stability guidance
 
-MAGPIE is under active development and the three packages release independently. Pin versions in production, read repository release notes, and test cross-language contracts before rolling out a new combination.
+MAGPIE is under active development and the four implementations release independently. Pin versions in production, read repository release notes, and test cross-language contracts before rolling out a new combination.
 

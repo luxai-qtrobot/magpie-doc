@@ -7,7 +7,7 @@ description: Public exports, methods, options, errors, browser support, and exam
 
 Package: [`@luxai-qtrobot/magpie`](https://www.npmjs.com/package/@luxai-qtrobot/magpie) · Repository: [`luxai-qtrobot/magpie-js`](https://github.com/luxai-qtrobot/magpie-js) · Environments: browser and Node.js
 
-**Language references:** [Python](./python) · [C++](./cpp) · TypeScript / JavaScript
+**Language references:** [Python](./python) · [C++](./cpp) · TypeScript / JavaScript · [MicroPython](./micropython)
 
 ## Runtime support
 
@@ -109,9 +109,6 @@ new MqttConnection(uri, options?: MqttOptions & {clientId?: string})
 |---|---|
 | `connect(timeout=10_000)` | Connects to the broker; timeout is in milliseconds. |
 | `disconnect()` | Gracefully disconnects and returns `Promise<void>`. |
-| `publish(topic, payload, qos?, retain?)` | Publishes raw `Uint8Array` data. Stream writers normally call this for you. |
-| `addSubscription(topic, callback, qos?)` | Registers a callback. MQTT `+` and `#` wildcards are supported. |
-| `removeSubscription(topic, callback)` | Removes a callback and unsubscribes when no listeners remain. |
 
 `MqttOptions` groups authentication, last-will, session, reconnect, and default QoS/retain settings. Use TLS options through the selected secure URI and runtime configuration.
 

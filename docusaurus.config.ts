@@ -78,7 +78,7 @@ const config: Config = {
       {
         name: 'keywords',
         content:
-          'MAGPIE, robotics, AI agents, messaging, RPC, MQTT, ZeroMQ, WebRTC, MCP, Python, C++, TypeScript',
+          'MAGPIE, robotics, embedded systems, microcontrollers, AI agents, messaging, RPC, MQTT, ZeroMQ, WebRTC, MCP, Python, C++, TypeScript, MicroPython, ESP32, Pico W',
       },
     ],
     image: 'img/magpie-social-card.svg',
@@ -163,6 +163,10 @@ const config: Config = {
               href: 'https://github.com/luxai-qtrobot/magpie-js',
             },
             {
+              label: 'MicroPython',
+              href: 'https://github.com/luxai-qtrobot/magpie-upy',
+            },
+            {
               label: 'Documentation',
               href: 'https://github.com/luxai-qtrobot/magpie-doc',
             },
@@ -193,6 +197,7 @@ const config: Config = {
             {label: 'Python API', to: '/docs/reference/python'},
             {label: 'C++ API', to: '/docs/reference/cpp'},
             {label: 'TypeScript API', to: '/docs/reference/typescript'},
+            {label: 'MicroPython API', to: '/docs/reference/micropython'},
           ],
         },
         {

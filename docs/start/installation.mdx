@@ -1,6 +1,6 @@
 ---
 title: Installation
-description: Install MAGPIE for Python, C++, TypeScript, or JavaScript with only the features you need.
+description: Install MAGPIE for Python, C++, TypeScript, JavaScript, or MicroPython with only the features you need.
 ---
 
 import Tabs from '@theme/Tabs';
@@ -97,6 +97,20 @@ For a browser page without a bundler:
 Browsers must use MQTT over WebSocket (`ws://` or `wss://`); they cannot open raw MQTT TCP connections.
 
 </TabItem>
+<TabItem value="micropython" label="MicroPython">
+
+Install `mpremote` on the development computer, then install the tagged package on the board. Replace `COM13` with a Windows COM port or a device such as `/dev/ttyACM0` on Linux.
+
+```powershell
+python -m pip install mpremote
+mpremote connect COM13 mip install github:luxai-qtrobot/magpie-upy@v0.1.0
+```
+
+The manifest installs MAGPIE, [`mqtt_as`](https://github.com/peterhinch/micropython-mqtt), and `umsgpack`. The board needs MicroPython with `asyncio`, sufficient heap, and networking supported by `mqtt_as`.
+
+The current release has been tested on a Seeed XIAO ESP32-S3. ESP32, Raspberry Pi Pico W, ESP8266, and similar `mqtt_as` targets are compatible subject to firmware and memory constraints.
+
+</TabItem>
 </Tabs>
 
 ## Install from source during development
@@ -136,6 +150,22 @@ cd magpie-js
 npm install
 npm run build
 npm test
+```
+
+</TabItem>
+<TabItem value="micropython" label="MicroPython">
+
+```bash
+git clone https://github.com/luxai-qtrobot/magpie-upy.git
+cd magpie-upy
+python -m pip install mpremote
+mpremote connect COM13 mip install package.json
+```
+
+Edit Wi-Fi and broker settings in an example, then run it directly on the board:
+
+```powershell
+mpremote connect COM13 run examples/mqtt_sensor_stream.py
 ```
 
 </TabItem>

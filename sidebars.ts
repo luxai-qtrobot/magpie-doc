@@ -58,7 +58,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Examples',
-      items: ['examples/index', 'examples/cross-language'],
+      items: ['examples/index', 'examples/cross-language', 'examples/micropython'],
     },
     {
       type: 'category',
@@ -68,6 +68,7 @@ const sidebars: SidebarsConfig = {
         'reference/python',
         'reference/cpp',
         'reference/typescript',
+        'reference/micropython',
         'reference/compatibility',
       ],
     },

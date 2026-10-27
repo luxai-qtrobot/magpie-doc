@@ -7,7 +7,7 @@ description: Public classes, methods, parameters, return values, errors, and exa
 
 Package: [`luxai-magpie`](https://pypi.org/project/luxai-magpie/) · Repository: [`luxai-qtrobot/magpie`](https://github.com/luxai-qtrobot/magpie) · Python 3.9+
 
-**Language references:** Python · [C++](./cpp) · [TypeScript / JavaScript](./typescript)
+**Language references:** Python · [C++](./cpp) · [TypeScript / JavaScript](./typescript) · [MicroPython](./micropython)
 
 ## Core communication API
 
@@ -94,8 +94,6 @@ finally:
 | `MqttConnection` | `MqttConnection(uri, client_id=None, protocol_version=5, keepalive=60, options=None)` |
 | `MqttConnection.connect(timeout=10.0)` | Connects and returns connection success. Supported URI schemes include `mqtt://`, `mqtts://`, `ws://`, and `wss://`. |
 | `MqttConnection.disconnect()` | Stops reconnect handling and closes the broker connection. |
-| `MqttConnection.publish(topic, payload, qos=None, retain=None)` | Low-level byte publication; stream writers normally call this for you. |
-| `MqttConnection.add_subscription(...)` / `remove_subscription(...)` | Registers or removes low-level callbacks. |
 | `MqttConnection.is_connected()` | Returns current broker connection state. |
 | `MqttStreamWriter` | `(connection, serializer=None, queue_size=10, qos=None, retain=None)` |
 | `MqttStreamReader` | `(connection, topic, serializer=None, queue_size=10, qos=None)`; MQTT wildcards are supported. |

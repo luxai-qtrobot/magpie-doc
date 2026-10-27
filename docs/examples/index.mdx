@@ -34,6 +34,11 @@ Start with the smallest example matching your task. Each repository contains run
     <strong>Expose MCP tools</strong>
     <p>Let agents discover and call robot or edge capabilities.</p>
   </Link>
+  <Link className="doc-card" to="/docs/examples/micropython">
+    <span>EMBEDDED</span>
+    <strong>Connect a microcontroller</strong>
+    <p>Stream sensors, control GPIO with RPC, and expose MCP tools from an ESP32.</p>
+  </Link>
   <Link className="doc-card" to="/docs/transports/webrtc">
     <span>PEER TO PEER</span>
     <strong>Use WebRTC</strong>
@@ -48,15 +53,15 @@ Start with the smallest example matching your task. Each repository contains run
 
 ## Runnable repositories
 
-| Capability | Python | C++ | TypeScript / browser |
-|---|---|---|---|
-| ZeroMQ stream and RPC | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/zmq) | [Examples](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/zmq) | — |
-| MQTT stream and RPC | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/mqtt) | [Examples](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/mqtt) | [Examples](https://github.com/luxai-qtrobot/magpie-js/tree/main/examples/mqtt) |
-| WebRTC | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/webrtc) | [Examples](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/webrtc) | [Browser demos](https://github.com/luxai-qtrobot/magpie-js/tree/main/examples/browser/webrtc) |
-| Schema RPC | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/schema) | [Examples](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/schema) | [Examples](https://github.com/luxai-qtrobot/magpie-js/tree/main/examples/schema) |
-| MCP | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/mcp) | [Server example](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/mcp) | [Examples](https://github.com/luxai-qtrobot/magpie-js/tree/main/examples/mcp) |
-| Nodes | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/nodes) | [Examples](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/nodes) | — |
-| Discovery | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/discovery) | [Example](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/discovery) | — |
+| Capability | Python | C++ | TypeScript / browser | MicroPython |
+|---|---|---|---|---|
+| ZeroMQ stream and RPC | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/zmq) | [Examples](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/zmq) | — | — |
+| MQTT stream and RPC | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/mqtt) | [Examples](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/mqtt) | [Examples](https://github.com/luxai-qtrobot/magpie-js/tree/main/examples/mqtt) | [Sensor and LED examples](https://github.com/luxai-qtrobot/magpie-upy/tree/main/examples) |
+| WebRTC | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/webrtc) | [Examples](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/webrtc) | [Browser demos](https://github.com/luxai-qtrobot/magpie-js/tree/main/examples/browser/webrtc) | — |
+| Schema RPC | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/schema) | [Examples](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/schema) | [Examples](https://github.com/luxai-qtrobot/magpie-js/tree/main/examples/schema) | [MCP schema example](https://github.com/luxai-qtrobot/magpie-upy/blob/main/examples/mqtt_mcp_tool.py) |
+| MCP | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/mcp) | [Server example](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/mcp) | [Examples](https://github.com/luxai-qtrobot/magpie-js/tree/main/examples/mcp) | [On-device tool](https://github.com/luxai-qtrobot/magpie-upy/blob/main/examples/mqtt_mcp_tool.py) |
+| Nodes | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/nodes) | [Examples](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/nodes) | — | — |
+| Discovery | [Examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/discovery) | [Example](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/discovery) | — | — |
 
 ## Suggested learning sequence
 

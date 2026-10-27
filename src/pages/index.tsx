@@ -6,7 +6,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import Heading from '@theme/Heading';
 import styles from './index.module.css';
 
-type Language = 'python' | 'cpp' | 'typescript';
+type Language = 'python' | 'cpp' | 'typescript' | 'micropython';
 
 const installs: Record<Language, {label: string; command: string; note: string}> = {
   python: {
@@ -24,6 +24,11 @@ const installs: Record<Language, {label: string; command: string; note: string}>
     command: 'npm install @luxai-qtrobot/magpie',
     note: 'Browser and Node.js',
   },
+  micropython: {
+    label: 'MicroPython',
+    command: 'mpremote connect <PORT> mip install github:luxai-qtrobot/magpie-upy@v0.1.0',
+    note: 'ESP32, Pico W, and compatible MicroPython boards',
+  },
 };
 
 const features = [
@@ -35,12 +40,12 @@ const features = [
   {
     eyebrow: 'ONE WIRE FORMAT',
     title: 'Language interoperable',
-    body: 'Python, C++, and TypeScript nodes exchange the same frames, RPC envelopes, schemas, and MCP calls.',
+    body: 'Python, C++, TypeScript, and MicroPython nodes exchange the same frames, RPC envelopes, schemas, and MCP calls.',
   },
   {
     eyebrow: 'AGENT READY',
     title: 'AI native',
-    body: 'Expose real services as MCP tools without creating a separate gateway or changing the service topology.',
+    body: 'Expose real services—even from a MicroPython board—as MCP tools without adding a separate device-side gateway.',
   },
   {
     eyebrow: 'USE ONLY WHAT YOU NEED',
@@ -109,7 +114,7 @@ function ArchitectureFlow() {
       <div className={styles.flowColumn}>
         <span className={styles.flowLabel}>Sensing and action</span>
         <div className={styles.flowNode}>Robot</div>
-        <div className={styles.flowNode}>Edge / IoT device</div>
+        <div className={styles.flowNode}>ESP32 / Pico W</div>
         <div className={styles.flowNode}>Sensors and actuators</div>
       </div>
       <div className={styles.transportRail}>
@@ -140,8 +145,8 @@ export default function Home(): React.ReactElement {
                 MAGPIE lets developers separate where intelligence runs from where sensing and action happen.
               </p>
               <p className={styles.heroSupport}>
-                Build transport-independent streaming and RPC systems for developers and AI agents—in Python,
-                C++, and TypeScript.
+                Build transport-independent streaming and RPC for developers and AI agents—from cloud and browser
+                applications to robots and microcontrollers—in Python, C++, TypeScript, and MicroPython.
               </p>
               <div className={styles.heroActions}>
                 <Link className="button button--primary button--lg" to="/docs/overview">
@@ -217,6 +222,11 @@ export default function Home(): React.ReactElement {
                 <strong>TypeScript</strong>
                 <span>Typed APIs for Node.js and browser-native MQTT and WebRTC applications.</span>
                 <em>Explore TypeScript →</em>
+              </Link>
+              <Link to="/docs/reference/micropython" className={styles.languageCard}>
+                <strong>MicroPython</strong>
+                <span>Async streams, RPC, typed frames, and MCP tools on ESP32 and Pico W-class devices.</span>
+                <em>Explore MicroPython →</em>
               </Link>
             </div>
           </div>

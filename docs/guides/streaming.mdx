@@ -12,7 +12,7 @@ Use streaming when producers should publish data independently of consumers: tel
 
 ## Write a value
 
-The following examples publish through MQTT so all three languages can participate in the same system.
+The following examples publish through MQTT so all four implementations can participate in the same system.
 
 <Tabs groupId="language" queryString>
 <TabItem value="python" label="Python" default>
@@ -64,6 +64,33 @@ await writer.write({temperature: 22.5, unit: 'C'}, 'robot/sensors/temperature')
 
 writer.close()
 await connection.disconnect()
+```
+
+</TabItem>
+<TabItem value="micropython" label="MicroPython">
+
+```python
+from luxai.magpie.transport.mqtt import MqttConnection, MqttStreamWriter
+
+MQTT_CONFIG = {
+    "ssid": "YOUR_WIFI",
+    "wifi_pw": "YOUR_WIFI_PASSWORD",
+    "server": "broker.example.com",
+    "port": 1883,
+    "client_id": b"magpie-upy-esp32-001",
+}
+
+connection = MqttConnection(MQTT_CONFIG)
+writer = MqttStreamWriter(connection)
+
+await connection.connect()
+await writer.write(
+    {"temperature": 22.5, "unit": "C"},
+    "robot/sensors/temperature",
+)
+
+await writer.close()
+connection.close()
 ```
 
 </TabItem>
@@ -119,6 +146,35 @@ try {
 } catch (error) {
   if (!(error instanceof TimeoutError)) throw error
 }
+```
+
+</TabItem>
+<TabItem value="micropython" label="MicroPython">
+
+```python
+from luxai.magpie.transport.mqtt import MqttConnection, MqttStreamReader
+
+MQTT_CONFIG = {
+    "ssid": "YOUR_WIFI",
+    "wifi_pw": "YOUR_WIFI_PASSWORD",
+    "server": "broker.example.com",
+    "port": 1883,
+    "client_id": b"magpie-upy-esp32-001",
+}
+
+connection = MqttConnection(MQTT_CONFIG)
+reader = MqttStreamReader(connection, "robot/sensors/#", queue_size=4)
+
+await connection.connect()
+await reader.start()
+
+try:
+    while True:
+        value, topic = await reader.read(timeout=5)
+        print(topic, value)
+finally:
+    await reader.close()
+    connection.close()
 ```
 
 </TabItem>

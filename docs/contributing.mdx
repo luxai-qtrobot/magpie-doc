@@ -5,7 +5,7 @@ description: Develop, test, document, and propose changes across the MAGPIE repo
 
 # Contributing
 
-MAGPIE is maintained across three implementation repositories and this documentation site. Contributions should preserve the shared concepts and wire contracts even when code changes only one language.
+MAGPIE is maintained across four implementation repositories and this documentation site. Contributions should preserve the shared concepts and wire contracts even when code changes only one language.
 
 ## Repositories
 
@@ -14,6 +14,7 @@ MAGPIE is maintained across three implementation repositories and this documenta
 | [magpie](https://github.com/luxai-qtrobot/magpie) | Python implementation and CLI toolkit |
 | [magpie-cpp](https://github.com/luxai-qtrobot/magpie-cpp) | C++ implementation and native packages |
 | [magpie-js](https://github.com/luxai-qtrobot/magpie-js) | TypeScript/JavaScript, Node.js, and browser implementation |
+| [magpie-upy](https://github.com/luxai-qtrobot/magpie-upy) | MicroPython implementation for embedded and IoT devices |
 | [magpie-doc](https://github.com/luxai-qtrobot/magpie-doc) | Unified documentation website |
 
 ## Before changing a wire contract
@@ -48,6 +49,13 @@ npm install
 npm run typecheck
 npm test
 npm run build
+```
+
+```bash title="MicroPython"
+python -m pip install msgpack mpremote
+$env:PYTHONPATH = (Resolve-Path .\src).Path
+python -m unittest discover -s tests -p "test_*.py"
+mpremote connect COM13 mip install package.json
 ```
 
 ## Documentation website

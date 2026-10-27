@@ -14,7 +14,7 @@ MAGPIE deliberately exposes a small communication vocabulary. Learn these four r
 | `RpcRequester` | One request → one response | Commands and queries | `call(request, timeout)` |
 | `RpcResponder` | Requests → handler → replies | Services and tools | `respond(handler, timeout)` |
 
-In Python and C++, `respond()` handles one request at a time. In TypeScript, `respond(handler)` registers the handler and returns immediately so incoming requests can be dispatched by the event loop.
+In Python, C++, and MicroPython, `respond()` handles one request at a time. In TypeScript, `respond(handler)` registers the handler and returns immediately so incoming requests can be dispatched by the event loop.
 
 ## Streaming
 

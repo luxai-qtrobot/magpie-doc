@@ -1,6 +1,6 @@
 ---
 title: Interoperability
-description: How Python, C++, and TypeScript MAGPIE implementations communicate directly.
+description: How Python, C++, TypeScript, and MicroPython MAGPIE implementations communicate directly.
 ---
 
 # Interoperability
@@ -31,13 +31,14 @@ MAGPIE implementations are designed to communicate directly across language boun
 
 ## Cross-language example
 
-A Python writer and C++ reader can communicate over ZeroMQ. All three languages can communicate over MQTT. Python/C++ peers and browser peers can use compatible WebRTC signaling and wire formats where their supported media and transport features overlap.
+A Python writer and C++ reader can communicate over ZeroMQ. All four implementations can communicate over MQTT. Python/C++ peers and browser peers can use compatible WebRTC signaling and wire formats where their supported media and transport features overlap.
 
 ```mermaid
 flowchart LR
     P[Python service] -->|DictFrame| B[(MQTT broker)]
     B --> C[C++ robot service]
     B --> J[TypeScript dashboard]
+    B --> U[MicroPython sensor]
     J -->|schema RPC| B
     B --> P
 ```
@@ -46,5 +47,5 @@ See [Cross-language systems](../examples/cross-language) for a practical MQTT ex
 
 ## Version compatibility
 
-Language packages are released independently. Before deploying a mixed-language system, verify that every implementation supports the transports, frame types, and schema features you plan to use. Pin package versions in production and exercise the complete path in integration tests.
+Language packages are released independently. Before deploying a mixed-language system, verify that every implementation supports the transports, frame types, and schema features you plan to use. Pin package versions in production and exercise the complete path in integration tests. For constrained boards, also test payload size, heap use, queue limits, and reconnect behavior on the target firmware.
 

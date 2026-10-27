@@ -1,0 +1,100 @@
+---
+title: MicroPython and embedded devices
+description: Stream sensor data, control hardware with RPC, and expose MCP tools from an ESP32 or Pico W-class board.
+---
+
+# MicroPython and embedded devices
+
+MAGPIE allows a microcontroller to participate in the same system as Python services, C++ robot processes, Node.js applications, and browser dashboards. The board uses async MQTT while desktop peers use their standard MAGPIE APIs and tools.
+
+:::info Tested and compatible hardware
+
+The current release has been tested on a Seeed XIAO ESP32-S3 with MicroPython 1.29.0. ESP32, Raspberry Pi Pico W, ESP8266, and other boards supported by `mqtt_as` are compatible targets subject to their firmware, memory, and networking support.
+
+:::
+
+## Prepare the board
+
+Install the package, replacing `COM13` with the serial port:
+
+```powershell
+python -m pip install mpremote
+mpremote connect COM13 mip install github:luxai-qtrobot/magpie-upy@v0.1.0
+```
+
+Clone the examples and replace `YOUR_WIFI` and `YOUR_WIFI_PASSWORD` in the script you want to run:
+
+```bash
+git clone https://github.com/luxai-qtrobot/magpie-upy.git
+cd magpie-upy
+```
+
+Use a distinct `DEVICE_ID` and MQTT `client_id` for every board. The public HiveMQ broker below is suitable for demonstrations only; use an authenticated broker and topic ACLs for real devices.
+
+## Stream sensor data
+
+The sensor example publishes a counter and the board's free heap every two seconds:
+
+```powershell
+mpremote connect COM13 run examples/mqtt_sensor_stream.py
+```
+
+Read it from any computer with desktop MAGPIE:
+
+```bash
+pip install "luxai-magpie[mqtt]"
+magpie-read-mqtt mqtt://broker.hivemq.com:1883 magpie-upy/esp32-001/sensor --pretty
+```
+
+This is direct cross-language interoperability: the MicroPython board and desktop Python process share the MQTT topic, MessagePack representation, and ordinary MAGPIE stream contract.
+
+## Control a physical output with RPC
+
+On a XIAO ESP32-S3, start the user-LED service:
+
+```powershell
+mpremote connect COM13 run examples/mqtt_rpc_switch.py
+```
+
+Call it from the desktop:
+
+```bash
+magpie-request-mqtt mqtt://broker.hivemq.com:1883 esp32-001/switch "{'action':'on'}" --pretty
+magpie-request-mqtt mqtt://broker.hivemq.com:1883 esp32-001/switch "{'action':'off'}" --pretty
+```
+
+The device acknowledges each request before returning its result. For another board, change the GPIO and active-high/active-low behavior to match its hardware.
+
+## Expose an MCP tool from the microcontroller
+
+Run the on-device MCP tool server:
+
+```powershell
+mpremote connect COM13 run examples/mqtt_mcp_tool.py
+```
+
+Discover and call its `free_memory` tool through ordinary MAGPIE RPC:
+
+```bash
+magpie-request-mqtt mqtt://broker.hivemq.com:1883 esp32-001/mcp "{'jsonrpc':'2.0','id':1,'method':'tools/list'}" --pretty
+magpie-request-mqtt mqtt://broker.hivemq.com:1883 esp32-001/mcp "{'jsonrpc':'2.0','id':2,'method':'tools/call','params':{'name':'free_memory','arguments':{}}}" --pretty
+```
+
+An agent can call the same tool through a desktop FastMCP client and MAGPIE's `McpTransport`. The board itself does not need FastMCP, an HTTP server, or an operating system—it implements the MCP tool contract through its small `McpSchema` and MQTT RPC service.
+
+```mermaid
+flowchart LR
+    D[ESP32 / Pico W] -->|MQTT RPC| B[(MQTT broker)]
+    B --> M[MAGPIE McpTransport]
+    M --> A[FastMCP client / AI agent]
+    A -->|tools/list · tools/call| M
+    M --> B
+    B --> D
+```
+
+## Where to go next
+
+- Browse the [complete MicroPython examples](https://github.com/luxai-qtrobot/magpie-upy/tree/main/examples).
+- Use the [MicroPython API reference](../reference/micropython) for constructors, lifecycle, limits, and errors.
+- Read [MCP and AI agents](../ai/mcp) before exposing actions that affect physical systems.
+- Review [MQTT security](../operations/security) before moving from a public demonstration broker to deployment.

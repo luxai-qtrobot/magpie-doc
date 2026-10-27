@@ -1,6 +1,6 @@
 ---
 title: Cross-language systems
-description: Connect Python, C++, and TypeScript MAGPIE components through shared frames, topics, RPC, and schemas.
+description: Connect Python, C++, TypeScript, and MicroPython MAGPIE components through shared frames, topics, RPC, and schemas.
 ---
 
 import Tabs from '@theme/Tabs';
@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 
 # Cross-language systems
 
-This recipe publishes a `StringFrame` to one MQTT topic. Any Python, C++, or TypeScript implementation can be the publisher or subscriber because the frame envelope and default MessagePack representation are shared.
+This recipe publishes a `StringFrame` to one MQTT topic. Python, C++, TypeScript, or MicroPython can publish or subscribe because the frame envelope and default MessagePack representation are shared.
 
 ## Common configuration
 
@@ -135,7 +135,7 @@ console.log(topic, frame.value)
 
 ## Add RPC
 
-For cross-language RPC, load the same JSON method schema on both sides. A C++ `McpSchema` server can be called by Python FastMCP or the TypeScript MCP SDK; a Python schema responder can be called from C++ or TypeScript through the corresponding schema-aware requester.
+For cross-language RPC, load the same JSON method schema on both sides. A C++ or MicroPython `McpSchema` server can be called by Python FastMCP or the TypeScript MCP SDK; a Python schema responder can be called from C++, TypeScript, or MicroPython through the corresponding schema-aware requester.
 
 Keep one contract file, test it against every language, and avoid redefining method shapes independently in several repositories.
 

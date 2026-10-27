@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 
 # MQTT
 
-MQTT is the most broadly interoperable MAGPIE transport: Python, C++, Node.js, and browsers can all participate. Because clients connect outbound to a broker, MQTT also works naturally for robots and services behind NAT.
+MQTT is the most broadly interoperable MAGPIE transport: Python, C++, Node.js, browsers, and MicroPython boards can all participate. Because clients connect outbound to a broker, MQTT also works naturally for robots, microcontrollers, and services behind NAT.
 
 ## URI schemes
 
@@ -75,6 +75,38 @@ const writer = new MqttStreamWriter(connection)
 const reader = new MqttStreamReader(connection, {topic: 'robot/+/status'})
 const client = new MqttRpcRequester(connection, 'robot-01/actions')
 ```
+
+</TabItem>
+<TabItem value="micropython" label="MicroPython">
+
+```python
+from luxai.magpie.transport.mqtt import (
+    MqttConnection,
+    MqttRpcRequester,
+    MqttStreamReader,
+    MqttStreamWriter,
+)
+
+config = {
+    "ssid": "YOUR_WIFI",
+    "wifi_pw": "YOUR_WIFI_PASSWORD",
+    "server": "broker.example.com",
+    "port": 1883,
+    "client_id": b"sensor-01",
+}
+
+connection = MqttConnection(config)
+await connection.connect()
+
+writer = MqttStreamWriter(connection)
+reader = MqttStreamReader(connection, "robot/+/status")
+client = MqttRpcRequester(connection, "robot-01/actions")
+
+await reader.start()
+await client.start()
+```
+
+The MicroPython port uses `mqtt_as` configuration rather than a URI. Keep the client ID unique and close components before calling the synchronous `connection.close()`.
 
 </TabItem>
 </Tabs>

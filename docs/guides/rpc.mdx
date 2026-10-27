@@ -62,6 +62,32 @@ server.respond((request) => ({status: 'ok', echo: request}))
 ```
 
 </TabItem>
+<TabItem value="micropython" label="MicroPython">
+
+```python
+from luxai.magpie.transport.mqtt import MqttConnection, MqttRpcResponder
+
+MQTT_CONFIG = {
+    "ssid": "YOUR_WIFI",
+    "wifi_pw": "YOUR_WIFI_PASSWORD",
+    "server": "broker.example.com",
+    "port": 1883,
+    "client_id": b"magpie-upy-esp32-001",
+}
+
+connection = MqttConnection(MQTT_CONFIG)
+server = MqttRpcResponder(connection, "robot/actions")
+
+await connection.connect()
+await server.start()
+while True:
+    await server.respond(
+        handler=lambda request: {"status": "ok", "echo": request},
+        timeout=1,
+    )
+```
+
+</TabItem>
 </Tabs>
 
 ## Call the service
@@ -121,6 +147,35 @@ try {
   if (error instanceof AckTimeoutError) console.error('No responder acknowledged the request')
   if (error instanceof ReplyTimeoutError) console.error('The responder did not finish in time')
 }
+```
+
+</TabItem>
+<TabItem value="micropython" label="MicroPython">
+
+```python
+from luxai.magpie.transport.mqtt import MqttConnection, MqttRpcRequester
+from luxai.magpie.transport.rpc_requester import AckTimeoutError, ReplyTimeoutError
+
+MQTT_CONFIG = {
+    "ssid": "YOUR_WIFI",
+    "wifi_pw": "YOUR_WIFI_PASSWORD",
+    "server": "broker.example.com",
+    "port": 1883,
+    "client_id": b"magpie-upy-esp32-001",
+}
+
+connection = MqttConnection(MQTT_CONFIG)
+client = MqttRpcRequester(connection, "robot/actions")
+
+await connection.connect()
+await client.start()
+try:
+    response = await client.call({"action": "move", "x": 1.0}, timeout=5)
+    print(response)
+except AckTimeoutError:
+    print("No responder acknowledged the request")
+except ReplyTimeoutError:
+    print("The responder did not finish in time")
 ```
 
 </TabItem>

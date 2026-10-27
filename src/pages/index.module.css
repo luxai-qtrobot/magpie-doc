@@ -202,6 +202,7 @@
 
 .languageTabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.35rem;
   padding: 1rem 1rem 0;
 }
@@ -237,6 +238,8 @@
 
 .commandLine span { color: #5ce0bd; }
 .commandLine code {
+  min-width: 0;
+  overflow-wrap: anywhere;
   padding: 0;
   background: transparent;
   color: #f0f8f6;
@@ -421,7 +424,7 @@
 }
 
 .languageCards {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .languageCard {
@@ -493,6 +496,7 @@
   .heroInner { grid-template-columns: 1fr; gap: 3rem; }
   .heroVisual { min-height: 27rem; }
   .featureGrid { grid-template-columns: repeat(2, 1fr); }
+  .languageCards { grid-template-columns: repeat(2, 1fr); }
   .flow { grid-template-columns: 1fr; padding-bottom: 2rem; }
   .flowArrow { transform: rotate(90deg); justify-self: center; }
   .transportRail { position: static; grid-template-columns: repeat(2, 1fr); }

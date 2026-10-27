@@ -7,19 +7,19 @@ description: Select the MAGPIE implementation that fits your runtime, platform, 
 
 All MAGPIE implementations share the same communication model and wire formats. Choose based on where your application runs; a single system can freely mix languages.
 
-| | Python | C++ | TypeScript / JavaScript |
-|---|---:|---:|---:|
-| ZeroMQ | ✓ | ✓ | — |
-| MQTT | ✓ | ✓ | ✓ |
-| WebRTC | ✓ | ✓ | ✓ Browser |
-| Streaming and RPC | ✓ | ✓ | ✓ |
-| Typed frames | ✓ | ✓ | ✓ |
-| Schema RPC | ✓ | ✓ | ✓ |
-| MCP tool server | ✓ | ✓ | ✓ |
-| MCP client adapter | ✓ | Via Python client | ✓ |
-| Node helpers | ✓ | ✓ | — |
-| Network discovery | ✓ | ✓ | — |
-| CLI and SSH tools | ✓ | — | — |
+| | Python | C++ | TypeScript / JavaScript | MicroPython |
+|---|---:|---:|---:|---:|
+| ZeroMQ | ✓ | ✓ | — | — |
+| MQTT | ✓ | ✓ | ✓ | ✓ |
+| WebRTC | ✓ | ✓ | ✓ Browser | — |
+| Streaming and RPC | ✓ | ✓ | ✓ | ✓ async |
+| Typed frames | ✓ | ✓ | ✓ | Primitive |
+| Schema RPC | ✓ | ✓ | ✓ | ✓ |
+| MCP tool server | ✓ | ✓ | ✓ | ✓ |
+| MCP client adapter | ✓ | Via Python client | ✓ | Via desktop client |
+| Node helpers | ✓ | ✓ | — | — |
+| Network discovery | ✓ | ✓ | — | — |
+| CLI and SSH tools | ✓ | — | — | — |
 
 ## Python
 
@@ -47,7 +47,17 @@ npm install @luxai-qtrobot/magpie
 
 [TypeScript reference →](../reference/typescript) · [JavaScript repository](https://github.com/luxai-qtrobot/magpie-js)
 
+## MicroPython
+
+Choose MicroPython for ESP32, Raspberry Pi Pico W, and similar embedded boards that need to stream sensor data, expose RPC services, or serve MCP tools without a desktop operating system. This port uses async MQTT and keeps memory, dependencies, and queues deliberately bounded.
+
+```powershell
+mpremote connect COM13 mip install github:luxai-qtrobot/magpie-upy@v0.1.0
+```
+
+[MicroPython quickstart →](../examples/micropython) · [MicroPython API →](../reference/micropython) · [MicroPython repository](https://github.com/luxai-qtrobot/magpie-upy)
+
 :::info Mixing languages is expected
-A Python perception process can publish a frame to a C++ control service while a browser subscribes through MQTT or WebRTC. See [cross-language systems](../examples/cross-language) for the rules that keep them interoperable.
+A MicroPython sensor can publish to a Python service and C++ control process while a browser subscribes through MQTT or WebRTC. See [cross-language systems](../examples/cross-language) for the rules that keep them interoperable.
 :::
 

@@ -7,7 +7,7 @@ description: Public headers, classes, methods, ownership, errors, and examples f
 
 Repository: [`luxai-qtrobot/magpie-cpp`](https://github.com/luxai-qtrobot/magpie-cpp) · Standard: C++14 · Build system: CMake
 
-**Language references:** [Python](./python) · C++ · [TypeScript / JavaScript](./typescript)
+**Language references:** [Python](./python) · C++ · [TypeScript / JavaScript](./typescript) · [MicroPython](./micropython)
 
 ## Libraries and headers
 
@@ -98,9 +98,6 @@ The publisher normally binds and subscribers connect. Set `delivery="latest"` fo
 | `MqttConnection(uri, clientId={}, options={})` | Constructs a shared broker connection. URI schemes are `mqtt://`, `mqtts://`, `ws://`, and `wss://`. |
 | `connect(timeoutSec=10.0)` / `disconnect()` | Establishes or closes the connection. |
 | `isConnected()` | Reports broker state. |
-| `publish(topic, data, size, qos=-1, retain=false)` | Publishes raw bytes; higher-level writers normally use it for you. |
-| `addSubscription(topicFilter, callback, qos=-1)` | Returns a `SubscriptionHandle`; supports `+` and `#` wildcards. |
-| `removeSubscription(topicFilter, handle)` | Removes a previously registered callback. |
 | `MqttStreamWriter` / `MqttStreamReader` | Streaming over the shared connection with serializer, QoS, retain, and queue options. |
 | `MqttRpcRequester` / `MqttRpcResponder` | RPC by shared `serviceName`, with optional schema and serializer. |
 

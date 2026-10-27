@@ -1,11 +1,11 @@
 # MAGPIE documentation
 
-[![Documentation](https://img.shields.io/badge/docs-live-118e78)](https://luxai-qtrobot.github.io/magpie-doc/)
+[![Documentation](https://img.shields.io/badge/docs-live-118e78)](https://magpie.luxai.com/)
 [![Documentation workflow](https://github.com/luxai-qtrobot/magpie-doc/actions/workflows/documentation.yml/badge.svg)](https://github.com/luxai-qtrobot/magpie-doc/actions/workflows/documentation.yml)
 
 Official documentation website for **MAGPIE**, a transport-agnostic communication framework for developers, AI agents, robotics, and distributed systems.
 
-The site brings together the [Python](https://github.com/luxai-qtrobot/magpie), [C++](https://github.com/luxai-qtrobot/magpie-cpp), and [TypeScript/JavaScript](https://github.com/luxai-qtrobot/magpie-js) implementations in one documentation base.
+The site brings together the [Python](https://github.com/luxai-qtrobot/magpie), [C++](https://github.com/luxai-qtrobot/magpie-cpp), [TypeScript/JavaScript](https://github.com/luxai-qtrobot/magpie-js), and [MicroPython](https://github.com/luxai-qtrobot/magpie-upy) implementations in one documentation base.
 
 ## Local development
 
@@ -16,7 +16,7 @@ npm install
 npm start
 ```
 
-Open <http://localhost:3000/magpie-doc/>. The development server reloads when documentation, components, or styles change.
+Open <http://localhost:3000/>. The development server reloads when documentation, components, or styles change.
 
 For a clean dependency installation matching the lockfile, use `npm ci` instead of `npm install`.
 
@@ -50,7 +50,7 @@ One-time repository setup:
 
 The public site is configured for:
 
-<https://luxai-qtrobot.github.io/magpie-doc/>
+<https://magpie.luxai.com/>
 
 ## License
 

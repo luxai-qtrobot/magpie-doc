@@ -27,6 +27,7 @@ flowchart LR
     Z --> E[Robot / edge / service]
     Q --> E
     W --> E
+    Q --> U[ESP32 / Pico W]
 ```
 
 ## What MAGPIE provides
@@ -57,7 +58,8 @@ flowchart LR
 ## Why teams choose it
 
 - **One mental model.** `StreamWriter`, `StreamReader`, `RpcRequester`, and `RpcResponder` remain recognizable across transports and languages.
-- **Real interoperability.** Python, C++, and TypeScript implementations share the same wire formats and can communicate directly.
+- **Real interoperability.** Python, C++, TypeScript, and MicroPython implementations share the same wire formats and can communicate directly.
+- **Cloud to microcontroller.** The same stream, RPC, schema, and MCP concepts connect AI services and browsers to ESP32 and Pico W-class devices.
 - **Deployment freedom.** Use direct local connections, brokered communication across NAT, or peer-to-peer WebRTC without redesigning the application.
 - **Optional complexity.** The core stays small. MQTT, WebRTC, media, discovery, and MCP are enabled only when needed.
 - **Useful operational tools.** Command-line readers, writers, request clients, media utilities, network discovery, and SSH-over-MQTT are part of the ecosystem.
@@ -73,6 +75,6 @@ If this is your first time here, follow these three pages:
 If you already know messaging systems, start with [the four core APIs](./concepts/core-api) or compare the [available transports](./transports/overview).
 
 :::tip The documentation is concept-first
-Most guides use synchronized Python, C++, and TypeScript tabs. Choose a language once and Docusaurus remembers it while you move through the site.
+Most guides use synchronized language tabs. Choose a language once and Docusaurus remembers it while you move through the site. MicroPython-specific lifecycle and memory guidance is collected in its [API reference](./reference/micropython).
 :::
 

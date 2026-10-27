@@ -9,33 +9,33 @@ This matrix describes the current repositories represented by this documentation
 
 ## Transport and runtime
 
-| Capability | Python | C++ | TypeScript / JavaScript |
-|---|---:|---:|---:|
-| ZeroMQ streaming | ✓ | ✓ | — |
-| ZeroMQ RPC | ✓ | ✓ | — |
-| MQTT TCP/TLS | ✓ | ✓ optional | Node.js |
-| MQTT WebSocket | ✓ | ✓ optional | Browser and Node.js |
-| WebRTC data channel | ✓ optional | ✓ optional | Browser |
-| WebRTC native RTP media | ✓ optional | — | Browser |
-| HTTP signaling | ✓ | ✓ | ✓ |
-| MQTT signaling | ✓ | With MQTT build | ✓ |
-| ZeroMQ signaling | ✓ | ✓ | — |
+| Capability | Python | C++ | TypeScript / JavaScript | MicroPython |
+|---|---:|---:|---:|---:|
+| ZeroMQ streaming | ✓ | ✓ | — | — |
+| ZeroMQ RPC | ✓ | ✓ | — | — |
+| MQTT TCP/TLS | ✓ | ✓ optional | Node.js | ✓ via `mqtt_as` |
+| MQTT WebSocket | ✓ | ✓ optional | Browser and Node.js | — |
+| WebRTC data channel | ✓ optional | ✓ optional | Browser | — |
+| WebRTC native RTP media | ✓ optional | — | Browser | — |
+| HTTP signaling | ✓ | ✓ | ✓ | — |
+| MQTT signaling | ✓ | With MQTT build | ✓ | — |
+| ZeroMQ signaling | ✓ | ✓ | — | — |
 
 ## Application features
 
-| Capability | Python | C++ | TypeScript / JavaScript |
-|---|---:|---:|---:|
-| Primitive frames | ✓ | ✓ | ✓ |
-| Image frames | Optional | Optional | ✓ |
-| Audio frames | Optional | Optional | ✓ |
-| Custom serializer interface | ✓ | ✓ | ✓ |
-| JSON-RPC schema | ✓ | ✓ | ✓ |
-| MCP tool server | ✓ | ✓ | ✓ |
-| MCP client transport | FastMCP | Via Python/TS client | Official TS SDK |
-| Node helpers | ✓ | ✓ | — |
-| Zeroconf discovery | Optional | Core | — |
-| CLI probes | ✓ | — | npm example scripts |
-| SSH over MQTT | ✓ | — | — |
+| Capability | Python | C++ | TypeScript / JavaScript | MicroPython |
+|---|---:|---:|---:|---:|
+| Primitive frames | ✓ | ✓ | ✓ | ✓ |
+| Image frames | Optional | Optional | ✓ | — |
+| Audio frames | Optional | Optional | ✓ | — |
+| Custom serializer interface | ✓ | ✓ | ✓ | ✓ |
+| JSON-RPC schema | ✓ | ✓ | ✓ | ✓ |
+| MCP tool server | ✓ | ✓ | ✓ | ✓ |
+| MCP client transport | FastMCP | Via Python/TS client | Official TS SDK | Via desktop client |
+| Node helpers | ✓ | ✓ | — | — |
+| Zeroconf discovery | Optional | Core | — | — |
+| CLI probes | ✓ | — | npm example scripts | Use desktop CLI |
+| SSH over MQTT | ✓ | — | — | — |
 
 ## Platform focus
 
@@ -46,7 +46,18 @@ This matrix describes the current repositories represented by this documentation
 | Raspberry Pi / NVIDIA Jetson | C++ for native integration; Python for fast development and AI |
 | Node.js backend | TypeScript |
 | Browser dashboard | TypeScript over MQTT WebSocket or WebRTC |
+| ESP32 / Pico W-class microcontroller | MicroPython over MQTT |
 | Agent client | Python FastMCP or TypeScript MCP SDK |
+
+## MicroPython hardware status
+
+| Board or family | Status | Notes |
+|---|---|---|
+| Seeed XIAO ESP32-S3 | Tested | MicroPython 1.29.0; used by the included sensor, LED RPC, and MCP examples |
+| ESP32 family | Compatible target | Requires suitable MicroPython firmware and `mqtt_as` networking support |
+| Raspberry Pi Pico W family | Compatible target | Requires RP2 MicroPython firmware with working Wi-Fi support |
+| ESP8266 | Constrained target | May require frozen or precompiled dependencies because of memory limits |
+| Other MicroPython boards | Evaluate | Requires `asyncio`, sufficient heap, and a network path supported by `mqtt_as` |
 
 ## Known cross-language consideration
 
