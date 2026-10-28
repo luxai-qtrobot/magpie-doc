@@ -30,7 +30,7 @@ The reference is organized by implementation because naming conventions, ownersh
   <Link className="doc-card" to="/docs/reference/micropython">
     <span>magpie-upy</span>
     <strong>MicroPython API</strong>
-    <p>Async MQTT, streams, RPC, primitive frames, schemas, and on-device MCP tools.</p>
+    <p>Async ZMQ and optional MQTT, streams, RPC, primitive frames, schemas, and on-device MCP tools.</p>
   </Link>
 </div>
 
@@ -40,6 +40,7 @@ The reference is organized by implementation because naming conventions, ownersh
 |---|---|---|---|---|
 | Streaming base | `StreamWriter`, `StreamReader` | `StreamWriter`, `StreamReader` | `StreamWriter`, `StreamReader` | Async `StreamWriter`, `StreamReader` |
 | RPC base | `RpcRequester`, `RpcResponder` | `RpcRequester`, `RpcResponder` | `RpcRequester`, `RpcResponder` | Async `RpcRequester`, `RpcResponder` |
+| Direct ZMQ | `Zmq*` / `ZMQ*` classes | `Zmq*` classes | — | Async `Zmq*` classes |
 | MQTT connection | `MqttConnection` | `MqttConnection` | `MqttConnection` | Async `MqttConnection` |
 | WebRTC connection | `WebRTCConnection` | `WebRtcConnection` | `WebRtcConnection` | — |
 | Method schema | `JsonRpcSchema` | `JsonRpcSchema` | `JsonRpcSchema` | `JsonRpcSchema` |

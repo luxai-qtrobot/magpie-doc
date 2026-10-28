@@ -11,9 +11,9 @@ This matrix describes the current repositories represented by this documentation
 
 | Capability | Python | C++ | TypeScript / JavaScript | MicroPython |
 |---|---:|---:|---:|---:|
-| ZeroMQ streaming | ✓ | ✓ | — | — |
-| ZeroMQ RPC | ✓ | ✓ | — | — |
-| MQTT TCP/TLS | ✓ | ✓ optional | Node.js | ✓ via `mqtt_as` |
+| ZeroMQ streaming | ✓ | ✓ | — | ✓ |
+| ZeroMQ RPC | ✓ | ✓ | — | ✓ |
+| MQTT TCP/TLS | ✓ | ✓ optional | Node.js | ✓ optional via `mqtt_as` |
 | MQTT WebSocket | ✓ | ✓ optional | Browser and Node.js | — |
 | WebRTC data channel | ✓ optional | ✓ optional | Browser | — |
 | WebRTC native RTP media | ✓ optional | — | Browser | — |
@@ -46,7 +46,7 @@ This matrix describes the current repositories represented by this documentation
 | Raspberry Pi / NVIDIA Jetson | C++ for native integration; Python for fast development and AI |
 | Node.js backend | TypeScript |
 | Browser dashboard | TypeScript over MQTT WebSocket or WebRTC |
-| ESP32 / Pico W-class microcontroller | MicroPython over MQTT |
+| ESP32 / Pico W-class microcontroller | MicroPython over ZMQ or optional MQTT |
 | Agent client | Python FastMCP or TypeScript MCP SDK |
 
 ## MicroPython hardware status
@@ -54,10 +54,10 @@ This matrix describes the current repositories represented by this documentation
 | Board or family | Status | Notes |
 |---|---|---|
 | Seeed XIAO ESP32-S3 | Tested | MicroPython 1.29.0; used by the included sensor, LED RPC, and MCP examples |
-| ESP32 family | Compatible target | Requires suitable MicroPython firmware and `mqtt_as` networking support |
+| ESP32 family | Compatible target | Requires suitable MicroPython firmware, `asyncio`, TCP networking, and sufficient heap |
 | Raspberry Pi Pico W family | Compatible target | Requires RP2 MicroPython firmware with working Wi-Fi support |
 | ESP8266 | Constrained target | May require frozen or precompiled dependencies because of memory limits |
-| Other MicroPython boards | Evaluate | Requires `asyncio`, sufficient heap, and a network path supported by `mqtt_as` |
+| Other MicroPython boards | Evaluate | Requires `asyncio`, sufficient heap, and TCP networking; optional MQTT additionally requires `mqtt_as` support |
 
 ## Known cross-language consideration
 

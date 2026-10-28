@@ -12,6 +12,7 @@ MAGPIE separates capabilities so a simple service does not inherit the dependenc
 ```mermaid
 flowchart TB
     APP[Your application] --> CORE[Core streaming · RPC · serialization]
+    CORE --> ZMQ[ZeroMQ included]
     CORE --> MQTT[MQTT optional]
     CORE --> RTC[WebRTC optional]
     CORE --> MEDIA[Audio / video optional]
@@ -32,7 +33,7 @@ flowchart TB
 - **Python:** extras such as `[mqtt]`, `[webrtc]`, `[video]`, `[audio]`, `[discovery]`, and `[mcp]`.
 - **C++:** separate Debian packages and CMake flags such as `MAGPIE_WITH_MQTT` and `MAGPIE_WITH_WEBRTC`.
 - **TypeScript:** the core npm package includes MQTT and browser WebRTC; the official MCP SDK is needed only by MCP clients.
-- **MicroPython:** the `mip` manifest installs the small MAGPIE package, `mqtt_as`, and `umsgpack`; no desktop MCP runtime is required on the board.
+- **MicroPython:** the default `mip` manifest installs core, ZMQ, and `umsgpack`. The separate `package-mqtt.json` manifest adds the MQTT adapter and `mqtt_as`; no desktop MCP runtime is required on the board.
 
 See [Installation](../start/installation) for exact commands.
 

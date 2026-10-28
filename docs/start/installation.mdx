@@ -99,16 +99,22 @@ Browsers must use MQTT over WebSocket (`ws://` or `wss://`); they cannot open ra
 </TabItem>
 <TabItem value="micropython" label="MicroPython">
 
-Install `mpremote` on the development computer, then install the tagged package on the board. Replace `COM13` with a Windows COM port or a device such as `/dev/ttyACM0` on Linux.
+Install `mpremote` on the development computer, then install MAGPIE on the board. Replace `COM13` with a Windows COM port or a device such as `/dev/ttyACM0` on Linux.
 
 ```powershell
 python -m pip install mpremote
-mpremote connect COM13 mip install github:luxai-qtrobot/magpie-upy@v0.1.0
+mpremote connect COM13 mip install github:luxai-qtrobot/magpie-upy
 ```
 
-The manifest installs MAGPIE, [`mqtt_as`](https://github.com/peterhinch/micropython-mqtt), and `umsgpack`. The board needs MicroPython with `asyncio`, sufficient heap, and networking supported by `mqtt_as`.
+The default manifest installs the MAGPIE core, ZMQ transport, and `umsgpack`. ZMQ communicates directly over TCP and does not require a broker.
 
-The current release has been tested on a Seeed XIAO ESP32-S3. ESP32, Raspberry Pi Pico W, ESP8266, and similar `mqtt_as` targets are compatible subject to firmware and memory constraints.
+Install the optional MQTT manifest when the board also needs MQTT and [`mqtt_as`](https://github.com/peterhinch/micropython-mqtt):
+
+```powershell
+mpremote connect COM13 mip install github:luxai-qtrobot/magpie-upy/package-mqtt.json
+```
+
+Install both manifests to use both transports. The current release has been tested on a Seeed XIAO ESP32-S3. ESP32, Raspberry Pi Pico W, ESP8266, and similar network-capable MicroPython boards are compatible subject to firmware and memory constraints.
 
 </TabItem>
 </Tabs>
@@ -162,11 +168,13 @@ python -m pip install mpremote
 mpremote connect COM13 mip install package.json
 ```
 
-Edit Wi-Fi and broker settings in an example, then run it directly on the board:
+Edit the Wi-Fi settings in a ZMQ example, then run it directly on the board:
 
 ```powershell
-mpremote connect COM13 run examples/mqtt_sensor_stream.py
+mpremote connect COM13 run examples/zmq_sensor_stream.py
 ```
+
+For MQTT development, also install `package-mqtt.json` and use an `mqtt_*.py` example.
 
 </TabItem>
 </Tabs>

@@ -26,8 +26,8 @@ const installs: Record<Language, {label: string; command: string; note: string}>
   },
   micropython: {
     label: 'MicroPython',
-    command: 'mpremote connect <PORT> mip install github:luxai-qtrobot/magpie-upy@v0.1.0',
-    note: 'ESP32, Pico W, and compatible MicroPython boards',
+    command: 'mpremote connect <PORT> mip install github:luxai-qtrobot/magpie-upy',
+    note: 'ZMQ included · MQTT available as an optional manifest',
   },
 };
 

@@ -52,7 +52,7 @@ npm run build
 ```
 
 ```bash title="MicroPython"
-python -m pip install msgpack mpremote
+python -m pip install msgpack pyzmq mpremote
 $env:PYTHONPATH = (Resolve-Path .\src).Path
 python -m unittest discover -s tests -p "test_*.py"
 mpremote connect COM13 mip install package.json

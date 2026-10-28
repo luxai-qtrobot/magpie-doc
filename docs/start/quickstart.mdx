@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 
 # Five-minute quickstart
 
-This example sends one message per second and receives it on a topic. Python and C++ use a direct ZeroMQ connection; TypeScript and MicroPython use MQTT for browser, Node.js, and embedded interoperability.
+This example sends values on a topic. Python, C++, and MicroPython use a direct ZeroMQ connection; TypeScript uses MQTT for browser and Node.js interoperability.
 
 <Tabs groupId="language" queryString>
 <TabItem value="python" label="Python" default>
@@ -132,20 +132,20 @@ Use `wss://` instead of `mqtt://` when running in a browser.
 </TabItem>
 <TabItem value="micropython" label="MicroPython">
 
-After [installing MAGPIE for MicroPython](./installation?language=micropython), edit the Wi-Fi settings in `examples/mqtt_sensor_stream.py` and run it on the board:
+After [installing MAGPIE for MicroPython](./installation?language=micropython), edit `WIFI_SSID` and `WIFI_PASSWORD` in `examples/zmq_sensor_stream.py`, then run it on the board:
 
 ```powershell
-mpremote connect COM13 run examples/mqtt_sensor_stream.py
+mpremote connect COM13 run examples/zmq_sensor_stream.py
 ```
 
-Read the stream from a desktop in another terminal:
+The example prints the board IP. Read its stream from a desktop in another terminal:
 
 ```bash
-pip install "luxai-magpie[mqtt]"
-magpie-read-mqtt mqtt://broker.hivemq.com:1883 magpie-upy/esp32-001/sensor --pretty
+pip install luxai-magpie
+magpie-read tcp://BOARD_IP:5555 magpie-upy/esp32-001/sensor --pretty
 ```
 
-The board publishes plain dictionaries through the same MessagePack and MQTT stream contract as desktop MAGPIE. Continue with the [embedded examples](../examples/micropython) to control GPIO through RPC and expose an MCP tool.
+The board publishes `DictFrame` values through the same MessagePack and ZMQ stream contract as desktop MAGPIE. Continue with the [embedded examples](../examples/micropython) to receive a desktop stream, control GPIO through RPC, expose an MCP tool, or use optional MQTT.
 
 </TabItem>
 </Tabs>

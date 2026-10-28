@@ -10,6 +10,8 @@ import TabItem from '@theme/TabItem';
 
 RPC is for operations where a caller needs one correlated response: query status, move a motor, update configuration, or invoke a tool. MAGPIE keeps the requester/responder model consistent across ZeroMQ, MQTT, and WebRTC.
 
+The Python and C++ tabs show direct ZeroMQ. TypeScript and MicroPython use MQTT so browser, Node.js, and embedded peers can share the same brokered RPC service. MicroPython users must first install the optional [`package-mqtt.json`](../start/installation?language=micropython) manifest.
+
 ## Create a responder
 
 <Tabs groupId="language" queryString>
@@ -176,6 +178,9 @@ except AckTimeoutError:
     print("No responder acknowledged the request")
 except ReplyTimeoutError:
     print("The responder did not finish in time")
+finally:
+    await client.close()
+    connection.close()
 ```
 
 </TabItem>

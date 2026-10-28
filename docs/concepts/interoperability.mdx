@@ -14,6 +14,7 @@ MAGPIE implementations are designed to communicate directly across language boun
 | Serialization | MessagePack by default, or values supported by a custom serializer shared by every endpoint |
 | Topics | UTF-8 topic names with transport-specific matching rules |
 | Frames | Shared type names, metadata fields, and snake_case wire keys |
+| ZMQ RPC | Correlation ID, acknowledgement, and payload envelope over ZMTP |
 | MQTT RPC | Correlation ID, reply topic, acknowledgement, and payload envelope |
 | WebRTC RPC | Shared request type, request ID, and payload envelope |
 | Schema RPC | JSON-RPC 2.0 requests, results, and errors |
@@ -31,7 +32,7 @@ MAGPIE implementations are designed to communicate directly across language boun
 
 ## Cross-language example
 
-A Python writer and C++ reader can communicate over ZeroMQ. All four implementations can communicate over MQTT. Python/C++ peers and browser peers can use compatible WebRTC signaling and wire formats where their supported media and transport features overlap.
+Python, C++, and MicroPython peers can communicate directly over ZeroMQ. All four implementations can communicate over MQTT when the MicroPython MQTT manifest and the corresponding desktop options are installed. Python/C++ peers and browser peers can use compatible WebRTC signaling and wire formats where their supported media and transport features overlap.
 
 ```mermaid
 flowchart LR

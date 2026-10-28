@@ -79,6 +79,12 @@ const client = new MqttRpcRequester(connection, 'robot-01/actions')
 </TabItem>
 <TabItem value="micropython" label="MicroPython">
 
+Install the optional MQTT manifest before using these classes:
+
+```powershell
+mpremote connect COM13 mip install github:luxai-qtrobot/magpie-upy/package-mqtt.json
+```
+
 ```python
 from luxai.magpie.transport.mqtt import (
     MqttConnection,
@@ -106,7 +112,7 @@ await reader.start()
 await client.start()
 ```
 
-The MicroPython port uses `mqtt_as` configuration rather than a URI. Keep the client ID unique and close components before calling the synchronous `connection.close()`.
+MQTT is optional in the MicroPython port. It uses `mqtt_as` configuration rather than a URI; close components before calling the synchronous `connection.close()`.
 
 </TabItem>
 </Tabs>

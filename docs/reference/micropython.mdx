@@ -1,39 +1,45 @@
 ---
 title: MicroPython API
-description: Async streams, RPC, frames, schemas, MQTT, and MCP tools for embedded MicroPython devices.
+description: Async ZMQ and MQTT streams, RPC, frames, schemas, and MCP tools for embedded MicroPython devices.
 ---
 
 # MicroPython API
 
-Repository: [`luxai-qtrobot/magpie-upy`](https://github.com/luxai-qtrobot/magpie-upy) · Current release: `0.1.0` · Runtime: MicroPython with `asyncio`
+Repository: [`luxai-qtrobot/magpie-upy`](https://github.com/luxai-qtrobot/magpie-upy) · Runtime: MicroPython with `asyncio`
 
 **Language references:** [Python](./python) · [C++](./cpp) · [TypeScript / JavaScript](./typescript) · MicroPython
 
-MAGPIE for MicroPython brings the same streaming, request/reply, frame, schema, and MCP concepts to constrained devices. It uses MQTT, MessagePack, and asynchronous APIs throughout, allowing a board to communicate directly with desktop and browser MAGPIE applications.
+MAGPIE for MicroPython brings the same streaming, request/reply, frame, schema, and MCP concepts to constrained devices. It uses asynchronous APIs and MessagePack by default. The included ZMQ transport communicates directly with Python or C++ MAGPIE peers; optional MQTT also connects boards to brokered systems and browser applications.
 
 ## Runtime and platform scope
 
-The implementation is transport-independent at its core, with MQTT as the transport supplied in this release. It has been tested on a Seeed XIAO ESP32-S3 running MicroPython 1.29.0. Boards supported by [`mqtt_as`](https://github.com/peterhinch/micropython-mqtt), including ESP32 and Raspberry Pi Pico W families, are compatible targets subject to firmware, memory, and network-driver support.
+The implementation is transport-independent at its core. ZMQ is included in the default package, while MQTT and `mqtt_as` are installed through a separate manifest. The port has been tested on a Seeed XIAO ESP32-S3 running MicroPython 1.29.0. Other boards require `asyncio`, TCP networking, and enough heap for the selected transport.
 
 | Included | Not included in this device package |
 |---|---|
-| Async streams and RPC | ZeroMQ and WebRTC transports |
-| MQTT networking and reconnect through `mqtt_as` | Image and audio frame families |
+| Async streams and RPC over ZMQ | WebRTC transport |
+| Optional MQTT networking through `mqtt_as` | Image and audio frame families |
 | Primitive frames and MessagePack | Desktop CLI tools and discovery helpers |
 | JSON-RPC and MCP tool server behavior | HTTP MCP server or FastMCP runtime on the board |
 
-The board can nevertheless serve MCP tools to a desktop FastMCP client through MAGPIE's desktop `McpTransport` adapter.
+The board can serve MCP tools to a desktop FastMCP client through MAGPIE's desktop `McpTransport` adapter.
 
 ## Installation
 
-Install `mpremote` on the development computer, then install the tagged package on the board. Replace `COM13` with the board's serial port.
+Install `mpremote` on the development computer, then install the default ZMQ package on the board. Replace `COM13` with the board's serial port.
 
 ```powershell
 python -m pip install mpremote
-mpremote connect COM13 mip install github:luxai-qtrobot/magpie-upy@v0.1.0
+mpremote connect COM13 mip install github:luxai-qtrobot/magpie-upy
 ```
 
-The manifest installs MAGPIE, `mqtt_as`, and `umsgpack`. See [Installation](../start/installation?language=micropython) for source-checkout installation and requirements.
+The default manifest installs the MAGPIE core, ZMQ adapter, and `umsgpack`. Install the MQTT manifest as well when the board needs MQTT:
+
+```powershell
+mpremote connect COM13 mip install github:luxai-qtrobot/magpie-upy/package-mqtt.json
+```
+
+See [Installation](../start/installation?language=micropython) for source-checkout installation and platform requirements.
 
 ## Core asynchronous API
 
@@ -42,7 +48,7 @@ All network operations are asynchronous. The four base operations mirror desktop
 | Class and method | Parameters and return | Behavior |
 |---|---|---|
 | `StreamWriter.write(data, topic)` | Value and non-empty topic → `None` | Serializes and publishes one value. Raises `RuntimeError` after close. |
-| `StreamWriter.close()` | → `None` | Releases writer resources without closing a shared connection. |
+| `StreamWriter.close()` | → `None` | Releases writer resources. |
 | `StreamReader.read(timeout=None)` | Seconds or `None` → `(value, topic)` | Reads and deserializes one value. Raises `asyncio.TimeoutError` on timeout. |
 | `StreamReader.close()` | → `None` | Releases subscriptions and receive state. |
 | `RpcRequester.call(request, timeout=None)` | Raw request → decoded reply | Waits for an ACK and final reply. |
@@ -52,7 +58,71 @@ All network operations are asynchronous. The four base operations mirror desktop
 
 `respond()` handles one request at a time. Keep calling it from the service loop; use a short timeout when the loop also performs other work.
 
-## MQTT connection
+## ZMQ transport
+
+The MicroPython adapter implements the ZMTP 3.0/3.1 wire protocol directly over TCP. It interoperates with desktop MAGPIE's ZeroMQ classes without requiring `libzmq` on the board.
+
+### ZMQ streams
+
+| Class | Public constructor |
+|---|---|
+| `ZmqStreamWriter` | `(endpoint, serializer=None, queue_size=0, bind=True, delivery="reliable", max_message_size=8192, max_peers=4, max_subscriptions=16, max_subscription_bytes=512)` |
+| `ZmqStreamReader` | `(endpoint, topic="", serializer=None, queue_size=4, bind=False, delivery="reliable", max_message_size=8192, max_peers=4)` |
+
+`topic` may be one string or a non-empty list of prefix subscriptions. Call `await start()` to begin listening or connecting, and `await wait_connected(timeout)` when startup ordering matters. Both classes reconnect their TCP connection, but the application remains responsible for establishing and restoring Wi-Fi.
+
+```python
+from luxai.magpie.transport.zmq import ZmqStreamWriter
+
+writer = ZmqStreamWriter(
+    "tcp://*:5555",
+    queue_size=0,
+    delivery="latest",
+)
+
+await writer.start()
+await writer.write(
+    {"temperature": 22.5, "unit": "C"},
+    "robot/sensors/temperature",
+)
+await writer.close()
+```
+
+`delivery="latest"` favors fresh buffered values. `delivery="reliable"` retains ordinary ZeroMQ PUB/SUB best-effort behavior; it does not guarantee delivery. Inspect `dropped` when monitoring bounded buffers.
+
+### ZMQ RPC
+
+| Class | Public constructor |
+|---|---|
+| `ZmqRpcRequester` | `(endpoint, serializer=None, schema=None, identity=None, ack_timeout=2, reply_timeout=10, max_pending=4, max_message_size=8192)` |
+| `ZmqRpcResponder` | `(endpoint, serializer=None, schema=None, bind=True, queue_size=4, max_peers=4, max_message_size=8192)` |
+
+The requester connects as a DEALER. The responder binds as a ROUTER by default and can serve up to `max_peers` simultaneous TCP peers. Call `await start()` before traffic, then `await close()` during shutdown.
+
+```python
+from luxai.magpie.transport.zmq import ZmqRpcResponder
+
+server = ZmqRpcResponder("tcp://*:5556")
+await server.start()
+
+while True:
+    await server.respond(
+        handler=lambda request: {"accepted": True, "request": request},
+        timeout=1,
+    )
+```
+
+`AckTimeoutError` means no responder accepted a request. `ReplyTimeoutError` means it was acknowledged but did not complete in time. Inspect responder `dropped` and `malformed` counters when diagnosing constrained-device traffic.
+
+:::warning Plain ZMQ is for trusted networks
+
+The device adapter uses ZMTP NULL security and does not implement encrypted ZeroMQ mechanisms. Keep its ports on a trusted LAN, behind firewall rules, or inside a protected tunnel.
+
+:::
+
+## Optional MQTT transport
+
+MQTT requires the `package-mqtt.json` manifest and a board supported by `mqtt_as`.
 
 ```python
 from luxai.magpie.transport.mqtt import MqttConnection
@@ -77,58 +147,30 @@ MqttConnection(config)
 
 The `config` dictionary accepts `mqtt_as` settings, including Wi-Fi, server, port, credentials, TLS, client ID, and reconnect options.
 
-| Method or property | Purpose |
+| Method | Purpose |
 |---|---|
 | `await connect()` | Connects and restores registered subscriptions after reconnect. Returns the connection. |
 | `close()` | Closes the client and clears subscriptions. This method is synchronous. |
 
-Create one connection and share it across streams and RPC components. The application owns it; closing a component never closes the connection.
+Create one connection and share it across MQTT streams and RPC components. The application owns it; closing a component never closes the connection.
 
-## MQTT streams
+### MQTT streams
 
-| Class | Constructor and behavior |
+| Class | Public constructor and behavior |
 |---|---|
 | `MqttStreamWriter` | `(connection, serializer=None, qos=1, retain=False)`; publishes immediately without a worker queue. |
 | `MqttStreamReader` | `(connection, topic, serializer=None, queue_size=4, qos=1)`; supports exact topics and MQTT wildcards. |
 
 Call `await reader.start()` before publishers begin when early messages must not be missed. `read()` starts the subscription lazily as a convenience. A full reader queue drops the oldest item so the consumer receives recent data; inspect `reader.dropped` to monitor this.
 
-```python
-from luxai.magpie.transport.mqtt import MqttStreamReader, MqttStreamWriter
+### MQTT RPC
 
-writer = MqttStreamWriter(connection)
-reader = MqttStreamReader(connection, "devices/+/temperature", queue_size=4)
-
-await reader.start()
-await writer.write({"celsius": 22.4}, "devices/room-1/temperature")
-value, topic = await reader.read(timeout=5)
-```
-
-## MQTT RPC
-
-| Class | Constructor |
+| Class | Public constructor |
 |---|---|
 | `MqttRpcRequester` | `(connection, service_name, serializer=None, schema=None, ack_timeout=2, reply_timeout=10, max_pending=4, qos=1)` |
 | `MqttRpcResponder` | `(connection, service_name, serializer=None, schema=None, queue_size=4, qos=1, recent_limit=4, recent_payload_limit=1024)` |
 
-The requester publishes to `<service>/rpc/req` and uses a unique reply topic. `AckTimeoutError` means no responder accepted the request; `ReplyTimeoutError` means it was acknowledged but did not complete in time. `max_pending` bounds requester memory.
-
-The responder sends an immediate ACK, processes one request at a time, and caches a small number of recent replies to avoid repeating common QoS 1 redeliveries. Handlers should still be idempotent because cache entries are bounded.
-
-```python
-from luxai.magpie.transport.mqtt import MqttRpcResponder
-
-server = MqttRpcResponder(connection, service_name="sensor-01/actions")
-await server.start()
-
-while True:
-    await server.respond(
-        handler=lambda request: {"accepted": True, "request": request},
-        timeout=1,
-    )
-```
-
-Only one `respond()` call may be active on a responder. A full responder queue omits the ACK so the requester receives an explicit ACK timeout rather than a silently lost request. Inspect `responder.dropped` and `responder.malformed` for diagnostics.
+The requester publishes to `<service>/rpc/req` and uses a unique reply topic. The responder sends an immediate ACK, processes one request at a time, and keeps a bounded cache of recent replies for common QoS 1 redeliveries. Handlers should still be idempotent.
 
 ## Frames
 
@@ -164,7 +206,7 @@ serialize(data) -> bytes
 deserialize(data) -> value
 ```
 
-To use another wire format, subclass `BaseSerializer`, implement those methods, and pass the same serializer to every endpoint on that communication path. Custom serializers are supported; MessagePack is an interoperable default, not an enforced requirement.
+To use another wire format, subclass `BaseSerializer`, implement those methods, and pass the same serializer to every endpoint on that communication path. MessagePack is an interoperable default, not an enforced requirement.
 
 ## JSON-RPC schema
 
@@ -189,7 +231,7 @@ The compact implementation dispatches schemas but does not run a JSON Schema val
 ```python
 import gc
 from luxai.magpie.schema import McpSchema
-from luxai.magpie.transport.mqtt import MqttRpcResponder
+from luxai.magpie.transport.zmq import ZmqRpcResponder
 
 schema = McpSchema(name="sensor-01")
 schema.register(
@@ -204,13 +246,13 @@ schema.register(
     },
 )
 
-server = MqttRpcResponder(connection, "sensor-01/mcp", schema=schema)
+server = ZmqRpcResponder("tcp://*:5556", schema=schema)
 await server.start()
 while True:
     await server.respond(timeout=1)
 ```
 
-This exposes MCP tool discovery and calls directly from the board. It does not run an HTTP MCP endpoint; a desktop or agent-side MAGPIE MCP adapter connects the standard MCP client to the MQTT RPC service.
+This exposes MCP tool discovery and calls directly from the board. It does not run an HTTP MCP endpoint; a desktop or agent-side MAGPIE MCP adapter connects the standard MCP client to the ZMQ or MQTT RPC service.
 
 ## Logging
 
@@ -218,14 +260,21 @@ This exposes MCP tool discovery and calls directly from the board. It does not r
 
 ## Lifecycle and resource guidance
 
-1. Construct one `MqttConnection`.
-2. Construct readers, writers, requesters, and responders with that connection.
-3. `await connection.connect()`.
-4. Start readers, requesters, and responders before traffic begins.
-5. Await component operations; keep handlers short and cooperative.
-6. `await component.close()` for each component.
-7. Call `connection.close()` last.
+For ZMQ:
 
-Defaults are intentionally bounded: MQTT payloads are limited to 4096 bytes, reader and responder queues default to four items, and requester concurrency defaults to four calls. Tune these values carefully against available heap rather than copying desktop settings.
+1. Construct the reader, writer, requester, or responder with a `tcp://` endpoint.
+2. Call `await component.start()`.
+3. Await application operations and keep handlers short and cooperative.
+4. Call `await component.close()`.
+
+For MQTT:
+
+1. Construct one `MqttConnection` and pass it to MQTT components.
+2. Call `await connection.connect()`.
+3. Start readers, requesters, and responders before traffic begins.
+4. Close every component with `await component.close()`.
+5. Call the synchronous `connection.close()` last.
+
+Defaults are intentionally bounded. ZMQ messages default to 8192 bytes and bound endpoints accept up to four peers. MQTT payloads default to 4096 bytes, reader and responder queues default to four items, and requester concurrency defaults to four calls. Tune these values carefully against available heap rather than copying desktop settings.
 
 The [MicroPython source](https://github.com/luxai-qtrobot/magpie-upy/tree/main/src/luxai/magpie) is the canonical signature reference. Continue with the [embedded examples](../examples/micropython) for complete device-to-desktop programs.

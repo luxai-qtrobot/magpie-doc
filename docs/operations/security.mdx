@@ -35,7 +35,7 @@ Plain endpoints do not provide application identity by themselves. Bind only to 
 - Separate tenants, environments, and robot identities in topic namespaces.
 - Rotate credentials and revoke an individual device without affecting the fleet.
 - Treat retained messages and LWT status as untrusted input until validated.
-- On MicroPython boards, keep Wi-Fi and broker credentials out of committed examples, use a unique broker identity per device, and size payload and queue limits for the available heap.
+- On MicroPython boards, keep Wi-Fi and optional broker credentials out of committed examples. Keep plain ZMQ endpoints on a trusted network, use a unique identity for each MQTT device, and size payload and queue limits for the available heap.
 
 ### WebRTC
 

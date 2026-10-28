@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 
 # ZeroMQ
 
-ZeroMQ is MAGPIE’s core direct transport for Python and C++. It needs no broker and works well on localhost, inside one process, or across a controlled network.
+ZeroMQ is MAGPIE’s core direct transport for Python, C++, and MicroPython. It needs no broker and works well on localhost, inside one process, or across a controlled network. The MicroPython implementation speaks ZMTP directly over TCP without requiring `libzmq` on the board.
 
 ## Endpoints
 
@@ -19,7 +19,7 @@ ZeroMQ is MAGPIE’s core direct transport for Python and C++. It needs no broke
 | `tcp://192.168.1.20:5555` | Connect over a LAN |
 | `inproc://pipeline` | Communicate within one process |
 
-One side binds and the other connects. In Python readers, set `bind=False` when connecting. Do not expose an unauthenticated bind endpoint to an untrusted network.
+One side binds and the other connects. In Python and MicroPython readers, set `bind=False` when connecting. MicroPython supports `tcp://` endpoints, not `inproc://`. Do not expose an unauthenticated bind endpoint to an untrusted network.
 
 ## Streaming
 
@@ -51,15 +51,41 @@ writer.write(magpie::StringFrame("ready"), "robot/status");
 ```
 
 </TabItem>
+<TabItem value="micropython" label="MicroPython">
+
+```python
+from luxai.magpie.transport.zmq import ZmqStreamWriter
+
+writer = ZmqStreamWriter("tcp://*:5555", delivery="latest")
+await writer.start()
+await writer.wait_connected(timeout=10)
+await writer.write({"state": "ready"}, "robot/status")
+await writer.close()
+```
+
+A Python or C++ reader connects to the board's printed IP address. Reverse the ownership with `ZmqStreamReader(..., bind=True)` when the board should receive a desktop stream.
+
+</TabItem>
 </Tabs>
 
 ## RPC
 
-Use `ZMQRpcRequester`/`ZMQRpcResponder` in Python and `ZmqRpcRequester`/`ZmqRpcResponder` in C++. The responder normally binds; requesters connect.
+Use `ZMQRpcRequester`/`ZMQRpcResponder` in Python and `ZmqRpcRequester`/`ZmqRpcResponder` in C++ and MicroPython. The responder normally binds; requesters connect.
 
 ```python
 server = ZMQRpcResponder("tcp://*:5556")
 client = ZMQRpcRequester("tcp://127.0.0.1:5556")
+```
+
+The equivalent asynchronous MicroPython service is:
+
+```python
+from luxai.magpie.transport.zmq import ZmqRpcResponder
+
+server = ZmqRpcResponder("tcp://*:5556")
+await server.start()
+while True:
+    await server.respond(handler=handle_request, timeout=1)
 ```
 
 ## Deployment notes
@@ -70,5 +96,5 @@ client = ZMQRpcRequester("tcp://127.0.0.1:5556")
 - ZeroMQ is not a replacement for authentication or encryption. Place it on a trusted network or add an appropriate security layer.
 - For cloud-to-robot communication behind NAT, MQTT or WebRTC signaling is usually easier operationally.
 
-Browse the runnable [Python ZeroMQ examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/zmq) or [C++ ZeroMQ examples](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/zmq).
+Browse the runnable [Python ZeroMQ examples](https://github.com/luxai-qtrobot/magpie/tree/main/examples/zmq), [C++ ZeroMQ examples](https://github.com/luxai-qtrobot/magpie-cpp/tree/main/examples/zmq), or [MicroPython examples](https://github.com/luxai-qtrobot/magpie-upy/tree/main/examples).
 

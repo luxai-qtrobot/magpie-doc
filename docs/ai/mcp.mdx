@@ -23,7 +23,7 @@ flowchart LR
 
 ## Why this matters for edge systems
 
-A robot or MicroPython board behind NAT can make an outbound MQTT connection. An agent in the cloud connects to the same broker, discovers its tools, and calls them without opening an inbound port or running a separate MCP gateway on the device.
+A robot or MicroPython board can serve MCP tools directly over ZMQ on a trusted LAN. When the device is behind NAT, optional MQTT lets it connect outbound to a broker so a cloud agent can discover and call the same tools without opening an inbound port or running a separate MCP gateway on the device.
 
 MCP does not replace authentication or authorization. It standardizes discovery and calls; transport security and tool policy remain application responsibilities.
 
@@ -109,7 +109,7 @@ schema.register(
 )
 ```
 
-MicroPython supplies MCP initialization, tool listing, tool calls, and ping directly on the board. Attach this schema to an async `MqttRpcResponder`; no FastMCP runtime or HTTP server is required on the device.
+MicroPython supplies MCP initialization, tool listing, tool calls, and ping directly on the board. Attach this schema to an async `ZmqRpcResponder`, or to an optional `MqttRpcResponder`; no FastMCP runtime or HTTP server is required on the device.
 
 </TabItem>
 </Tabs>
@@ -139,29 +139,18 @@ server = WebRTCRpcResponder(peer, service_name="robot-01", schema=schema)
 
 ### Serve tools from MicroPython
 
-On MicroPython, attach the schema to the async MQTT responder and keep serving one request at a time:
+On MicroPython, attach the schema to the default async ZMQ responder and keep serving one request at a time:
 
 ```python
-from luxai.magpie.transport.mqtt import MqttConnection, MqttRpcResponder
+from luxai.magpie.transport.zmq import ZmqRpcResponder
 
-MQTT_CONFIG = {
-    "ssid": "YOUR_WIFI",
-    "wifi_pw": "YOUR_WIFI_PASSWORD",
-    "server": "broker.example.com",
-    "port": 1883,
-    "client_id": b"magpie-upy-esp32-001",
-}
-
-connection = MqttConnection(MQTT_CONFIG)
-server = MqttRpcResponder(connection, "sensor-01/mcp", schema=schema)
-
-await connection.connect()
+server = ZmqRpcResponder("tcp://*:5556", schema=schema)
 await server.start()
 while True:
     await server.respond(timeout=1)
 ```
 
-The standard MCP client remains on the desktop, in a service, or in an agent runtime. MAGPIE's client adapter translates its MCP messages to the same MQTT RPC service. See the complete [MicroPython MCP example](../examples/micropython#expose-an-mcp-tool-from-the-microcontroller).
+The standard MCP client remains on the desktop, in a service, or in an agent runtime. MAGPIE's client adapter translates its MCP messages to the same ZMQ RPC service. See the complete [MicroPython MCP example](../examples/micropython#expose-an-mcp-tool-from-the-microcontroller). Use `MqttRpcResponder` instead when the optional brokered transport better fits the deployment.
 
 ## Connect an agent client
 

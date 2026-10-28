@@ -9,7 +9,7 @@ All MAGPIE implementations share the same communication model and wire formats. 
 
 | | Python | C++ | TypeScript / JavaScript | MicroPython |
 |---|---:|---:|---:|---:|
-| ZeroMQ | ✓ | ✓ | — | — |
+| ZeroMQ | ✓ | ✓ | — | ✓ |
 | MQTT | ✓ | ✓ | ✓ | ✓ |
 | WebRTC | ✓ | ✓ | ✓ Browser | — |
 | Streaming and RPC | ✓ | ✓ | ✓ | ✓ async |
@@ -49,15 +49,15 @@ npm install @luxai-qtrobot/magpie
 
 ## MicroPython
 
-Choose MicroPython for ESP32, Raspberry Pi Pico W, and similar embedded boards that need to stream sensor data, expose RPC services, or serve MCP tools without a desktop operating system. This port uses async MQTT and keeps memory, dependencies, and queues deliberately bounded.
+Choose MicroPython for ESP32, Raspberry Pi Pico W, and similar embedded boards that need to stream sensor data, expose RPC services, or serve MCP tools without a desktop operating system. The default direct ZMQ transport needs no broker; MQTT is available through an optional manifest. Memory, dependencies, and queues remain deliberately bounded.
 
 ```powershell
-mpremote connect COM13 mip install github:luxai-qtrobot/magpie-upy@v0.1.0
+mpremote connect COM13 mip install github:luxai-qtrobot/magpie-upy
 ```
 
 [MicroPython quickstart →](../examples/micropython) · [MicroPython API →](../reference/micropython) · [MicroPython repository](https://github.com/luxai-qtrobot/magpie-upy)
 
 :::info Mixing languages is expected
-A MicroPython sensor can publish to a Python service and C++ control process while a browser subscribes through MQTT or WebRTC. See [cross-language systems](../examples/cross-language) for the rules that keep them interoperable.
+A MicroPython sensor can connect directly to Python or C++ over ZMQ, or use optional MQTT when a broker, browser, or NAT-friendly topology is needed. See [cross-language systems](../examples/cross-language) for the rules that keep them interoperable.
 :::
 
