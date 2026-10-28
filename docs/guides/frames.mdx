@@ -19,6 +19,8 @@ MAGPIE can carry ordinary values, but frames provide a portable type envelope an
 | Images | `ImageFrameRaw`, `ImageFrameJpeg`, `ImageFrameCV` (Python) | Raw, JPEG, or OpenCV-compatible images |
 | Audio | `AudioFrameRaw`, `AudioFrameFlac` | PCM or compressed audio with sample metadata |
 
+MicroPython includes `ImageFrameRaw` and `ImageFrameJpeg`. They carry existing image bytes and metadata without performing encoding or decoding on the board; `ImageFrameCV` remains Python-specific.
+
 Common metadata includes a global identifier, local identifier, name, timestamp, and concrete frame type. Media frames add dimensions, format, sample rate, or channel information.
 
 ## Create and send a frame

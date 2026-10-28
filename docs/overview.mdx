@@ -27,7 +27,7 @@ flowchart LR
     Z --> E[Robot / edge / service]
     Q --> E
     W --> E
-    Q --> U[ESP32 / Pico W]
+    Q --> U[MicroPython device]
 ```
 
 ## What MAGPIE provides
@@ -59,7 +59,7 @@ flowchart LR
 
 - **One mental model.** `StreamWriter`, `StreamReader`, `RpcRequester`, and `RpcResponder` remain recognizable across transports and languages.
 - **Real interoperability.** Python, C++, TypeScript, and MicroPython implementations share the same wire formats and can communicate directly.
-- **Cloud to microcontroller.** The same stream, RPC, schema, and MCP concepts connect AI services and browsers to ESP32 and Pico W-class devices.
+- **Cloud to MicroPython.** The same stream, RPC, schema, and MCP concepts connect AI services and browsers to MicroPython devices.
 - **Deployment freedom.** Use direct local connections, brokered communication across NAT, or peer-to-peer WebRTC without redesigning the application.
 - **Optional complexity.** The core stays small. MQTT, WebRTC, media, discovery, and MCP are enabled only when needed.
 - **Useful operational tools.** Command-line readers, writers, request clients, media utilities, network discovery, and SSH-over-MQTT are part of the ecosystem.

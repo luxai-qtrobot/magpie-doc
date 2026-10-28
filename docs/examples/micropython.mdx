@@ -1,15 +1,15 @@
 ---
 title: MicroPython and embedded devices
-description: Stream data, control hardware with RPC, and expose MCP tools from an ESP32 or Pico W-class board over ZMQ or MQTT.
+description: Stream sensor and camera data, control hardware with RPC, and expose MCP tools from MicroPython devices.
 ---
 
 # MicroPython and embedded devices
 
-MAGPIE lets a microcontroller participate directly in the same system as Python services and C++ robot processes. The default ZMQ transport communicates over TCP without a broker. Install the optional MQTT package when the deployment needs brokered routing, browser access, or easier communication across NAT.
+MAGPIE lets any MicroPython device participate directly in the same system as Python services and C++ robot processes. The default ZMQ transport communicates over TCP without a broker. Install the optional MQTT package when the deployment needs brokered routing, browser access, or easier communication across NAT.
 
-:::info Tested and compatible hardware
+:::info Board-independent
 
-The current release has been tested on a Seeed XIAO ESP32-S3 with MicroPython 1.29.0. ESP32, Raspberry Pi Pico W, ESP8266, and other network-capable MicroPython boards are compatible targets subject to their firmware, `asyncio`, memory, and TCP networking support.
+MAGPIE does not identify, whitelist, or depend on any board family. It runs on all MicroPython devices; individual features use only the runtime capabilities and peripherals required by that feature.
 
 :::
 
@@ -43,10 +43,27 @@ mpremote connect COM13 run examples/zmq_sensor_stream.py
 Read the stream from the desktop, replacing `BOARD_IP` with the address printed by the board:
 
 ```bash
-magpie-read tcp://BOARD_IP:5555 magpie-upy/esp32-001/sensor --pretty
+magpie-read tcp://DEVICE_IP:5555 magpie-upy/esp32-001/sensor --pretty
 ```
 
 This is direct cross-language interoperability: MicroPython and desktop MAGPIE share the ZMQ multipart format, MessagePack representation, frame envelope, and stream API.
+
+## Stream JPEG camera frames
+
+On a MicroPython device whose runtime exposes a camera module, the camera example captures VGA JPEG frames and publishes them without re-encoding. Adapt the camera import and configuration to that runtime.
+
+```powershell
+mpremote connect COM13 run examples/zmq_camera_stream.py
+```
+
+Install the desktop video tools and connect the viewer to the IP address printed by the board:
+
+```bash
+python -m pip install "luxai-magpie[video]"
+magpie-video-viewer tcp://DEVICE_IP:5559 magpie-upy/esp32-001/camera
+```
+
+Each sample is an `ImageFrameJpeg` carrying the camera's JPEG bytes plus width, height, channel, pixel-format, and normal MAGPIE frame metadata. JPEG size varies with the scene and camera quality, so the example raises the ZMQ `max_message_size` limit accordingly.
 
 ## Send a stream to the board
 
@@ -59,14 +76,14 @@ mpremote connect COM13 run examples/zmq_stream_reader.py
 Publish values to the endpoint printed by the board:
 
 ```bash
-magpie-write tcp://BOARD_IP:5557 magpie-upy/esp32-001/command "{'action':'ping'}" --rate 1 --loop
+magpie-write tcp://DEVICE_IP:5557 magpie-upy/esp32-001/command "{'action':'ping'}" --rate 1 --loop
 ```
 
 The reader uses `delivery="latest"`, so a slow application favors the newest buffered value.
 
 ## Control a physical output with RPC
 
-On a XIAO ESP32-S3, start the ZMQ service that controls the active-low user LED:
+Start the ZMQ service that controls the example board's user LED:
 
 ```powershell
 mpremote connect COM13 run examples/zmq_rpc_switch.py
@@ -79,9 +96,9 @@ magpie-request tcp://BOARD_IP:5558 "{'action':'on'}" --pretty
 magpie-request tcp://BOARD_IP:5558 "{'action':'off'}" --pretty
 ```
 
-The device acknowledges each request before returning its result. For another board, change the GPIO and active-high or active-low behavior to match its hardware.
+The device acknowledges each request before returning its result. Adjust the GPIO and active-high or active-low behavior to match the connected hardware.
 
-## Expose an MCP tool from the microcontroller
+## Expose an MCP tool from the device
 
 Run the on-device MCP tool server:
 
@@ -100,7 +117,7 @@ An agent can call the same tool through a desktop FastMCP client and MAGPIE's `M
 
 ```mermaid
 flowchart LR
-    D[ESP32 / Pico W] <-->|ZMQ RPC over TCP| M[MAGPIE McpTransport]
+    D[MicroPython device] <-->|ZMQ RPC over TCP| M[MAGPIE McpTransport]
     M <--> A[FastMCP client / AI agent]
 ```
 

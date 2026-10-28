@@ -23,7 +23,7 @@ flowchart LR
 
 ## Why this matters for edge systems
 
-A robot or MicroPython board can serve MCP tools directly over ZMQ on a trusted LAN. When the device is behind NAT, optional MQTT lets it connect outbound to a broker so a cloud agent can discover and call the same tools without opening an inbound port or running a separate MCP gateway on the device.
+A robot or MicroPython device can serve MCP tools directly over ZMQ on a trusted LAN. When the device is behind NAT, optional MQTT lets it connect outbound to a broker so a cloud agent can discover and call the same tools without opening an inbound port or running a separate MCP gateway on the device.
 
 MCP does not replace authentication or authorization. It standardizes discovery and calls; transport security and tool policy remain application responsibilities.
 

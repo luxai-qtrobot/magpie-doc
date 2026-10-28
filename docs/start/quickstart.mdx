@@ -142,7 +142,7 @@ The example prints the board IP. Read its stream from a desktop in another termi
 
 ```bash
 pip install luxai-magpie
-magpie-read tcp://BOARD_IP:5555 magpie-upy/esp32-001/sensor --pretty
+magpie-read tcp://DEVICE_IP:5555 magpie-upy/esp32-001/sensor --pretty
 ```
 
 The board publishes `DictFrame` values through the same MessagePack and ZMQ stream contract as desktop MAGPIE. Continue with the [embedded examples](../examples/micropython) to receive a desktop stream, control GPIO through RPC, expose an MCP tool, or use optional MQTT.

@@ -13,7 +13,7 @@ All MAGPIE implementations share the same communication model and wire formats. 
 | MQTT | ✓ | ✓ | ✓ | ✓ |
 | WebRTC | ✓ | ✓ | ✓ Browser | — |
 | Streaming and RPC | ✓ | ✓ | ✓ | ✓ async |
-| Typed frames | ✓ | ✓ | ✓ | Primitive |
+| Typed frames | ✓ | ✓ | ✓ | ✓ |
 | Schema RPC | ✓ | ✓ | ✓ | ✓ |
 | MCP tool server | ✓ | ✓ | ✓ | ✓ |
 | MCP client adapter | ✓ | Via Python client | ✓ | Via desktop client |
@@ -49,7 +49,7 @@ npm install @luxai-qtrobot/magpie
 
 ## MicroPython
 
-Choose MicroPython for ESP32, Raspberry Pi Pico W, and similar embedded boards that need to stream sensor data, expose RPC services, or serve MCP tools without a desktop operating system. The default direct ZMQ transport needs no broker; MQTT is available through an optional manifest. Memory, dependencies, and queues remain deliberately bounded.
+Choose MicroPython for any MicroPython device that needs to stream sensor data, expose RPC services, or serve MCP tools without a desktop operating system. MAGPIE runs on all MicroPython devices and has no dependency on a board family. The default direct ZMQ transport needs no broker; MQTT is available through an optional manifest. Memory, dependencies, and queues remain deliberately bounded.
 
 ```powershell
 mpremote connect COM13 mip install github:luxai-qtrobot/magpie-upy

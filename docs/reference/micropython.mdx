@@ -13,13 +13,13 @@ MAGPIE for MicroPython brings the same streaming, request/reply, frame, schema, 
 
 ## Runtime and platform scope
 
-The implementation is transport-independent at its core. ZMQ is included in the default package, while MQTT and `mqtt_as` are installed through a separate manifest. The port has been tested on a Seeed XIAO ESP32-S3 running MicroPython 1.29.0. Other boards require `asyncio`, TCP networking, and enough heap for the selected transport.
+The implementation is transport-independent at its core and has no dependency on a board family. It runs on all MicroPython devices. ZMQ is included in the default package, while MQTT and `mqtt_as` are installed through a separate manifest; individual features use the runtime capabilities and peripherals exposed by the device.
 
 | Included | Not included in this device package |
 |---|---|
 | Async streams and RPC over ZMQ | WebRTC transport |
-| Optional MQTT networking through `mqtt_as` | Image and audio frame families |
-| Primitive frames and MessagePack | Desktop CLI tools and discovery helpers |
+| Optional MQTT networking through `mqtt_as` | Audio frame family |
+| Primitive and raw/JPEG image frames | Desktop CLI tools and discovery helpers |
 | JSON-RPC and MCP tool server behavior | HTTP MCP server or FastMCP runtime on the board |
 
 The board can serve MCP tools to a desktop FastMCP client through MAGPIE's desktop `McpTransport` adapter.
@@ -174,7 +174,7 @@ The requester publishes to `<service>/rpc/req` and uses a unique reply topic. Th
 
 ## Frames
 
-Every frame carries `gid`, `id`, `name`, and `timestamp`. Available value frames are:
+Every frame carries `gid`, `id`, `name`, and `timestamp`. Available primitive and collection frames are:
 
 `BoolFrame`, `IntFrame`, `FloatFrame`, `StringFrame`, `BytesFrame`, `DictFrame`, and `ListFrame`.
 
@@ -188,6 +188,28 @@ wire_value = second.to_dict()
 restored = Frame.from_dict(wire_value)
 print(restored.value)
 ```
+
+Image frames use the same wire fields as desktop MAGPIE:
+
+| Class | Public constructor |
+|---|---|
+| `ImageFrameRaw` | `(data=b"", format="raw", width=0, height=0, channels=0, pixel_format="", gid=None, id=0, timestamp=None)` |
+| `ImageFrameJpeg` | `(data=b"", format="jpeg", width=0, height=0, channels=0, pixel_format="", gid=None, id=0, timestamp=None)` |
+
+```python
+from luxai.magpie.frames import ImageFrameJpeg
+
+frame = ImageFrameJpeg(
+    data=jpeg_bytes,
+    width=640,
+    height=480,
+    channels=3,
+    pixel_format="RGB",
+)
+await writer.write(frame, "camera/jpeg")
+```
+
+These classes preserve the supplied bytes and metadata; they do not encode or decode images on the board. Set the transport's `max_message_size` high enough for the largest expected frame.
 
 | Method | Purpose |
 |---|---|

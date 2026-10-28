@@ -78,7 +78,7 @@ const config: Config = {
       {
         name: 'keywords',
         content:
-          'MAGPIE, robotics, embedded systems, microcontrollers, AI agents, messaging, RPC, MQTT, ZeroMQ, WebRTC, MCP, Python, C++, TypeScript, MicroPython, ESP32, Pico W',
+          'MAGPIE, robotics, embedded systems, IoT devices, AI agents, messaging, RPC, MQTT, ZeroMQ, WebRTC, MCP, Python, C++, TypeScript, MicroPython',
       },
     ],
     image: 'img/magpie-social-card.svg',

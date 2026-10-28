@@ -45,7 +45,7 @@ const features = [
   {
     eyebrow: 'AGENT READY',
     title: 'AI native',
-    body: 'Expose real services—even from a MicroPython board—as MCP tools without adding a separate device-side gateway.',
+    body: 'Expose real services—even from a MicroPython device—as MCP tools without adding a separate device-side gateway.',
   },
   {
     eyebrow: 'USE ONLY WHAT YOU NEED',
@@ -114,7 +114,7 @@ function ArchitectureFlow() {
       <div className={styles.flowColumn}>
         <span className={styles.flowLabel}>Sensing and action</span>
         <div className={styles.flowNode}>Robot</div>
-        <div className={styles.flowNode}>ESP32 / Pico W</div>
+        <div className={styles.flowNode}>MicroPython device</div>
         <div className={styles.flowNode}>Sensors and actuators</div>
       </div>
       <div className={styles.transportRail}>
@@ -225,7 +225,7 @@ export default function Home(): React.ReactElement {
               </Link>
               <Link to="/docs/reference/micropython" className={styles.languageCard}>
                 <strong>MicroPython</strong>
-                <span>Async streams, RPC, typed frames, and MCP tools on ESP32 and Pico W-class devices.</span>
+                <span>Async streams, RPC, typed frames, and MCP tools on all MicroPython devices.</span>
                 <em>Explore MicroPython →</em>
               </Link>
             </div>
